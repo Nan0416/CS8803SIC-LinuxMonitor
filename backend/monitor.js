@@ -1,11 +1,16 @@
 const os = require('os');
 const decimal = require('./helper_functions').decimal;
+const fs = require('fs');
 /**
  * 
- * @param {*} period A millisecond time period
- * @param {*} callback A callback function whose argument is the cpu load
+ * @param {*} [period] A millisecond time period, default 100
+ * @param {*} callback A callback function whose arguments are err and the cpu load
  */
-function getCPULoad(period, callback){
+function CPU(period, callback){
+    if(typeof period === 'function'){
+        callback = period;
+        period = 100;
+    }
     let t1 = os.cpus();
     setTimeout(()=>{
         let t2 = os.cpus();
@@ -23,7 +28,7 @@ function getCPULoad(period, callback){
         }
         overview.user = decimal(overview.user / result.length , 4);
         overview.sys = decimal(overview.sys / result.length, 4);
-        callback({
+        callback(null, {
             overview: overview,
             cores: result,
             corenum: result.length
@@ -43,4 +48,38 @@ function __loadPerCore(t1, t2){
     };
 }
 
-module.exports.getCPULoad = getCPULoad;
+/////////////////////////////////////////////////////////////////////////////////////
+//////////////////////// Memory /////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+
+function memory(callback){
+    const filepath = '/proc/meminfo';
+    fs.readFile(filepath, (err, data)=>{
+        if(err){
+            callback(err);
+            return;
+        }
+        let items = data.toString('utf8').split('\n');
+        const required_fields = new Set([
+            "MemTotal:", 
+            "MemFree:", 
+            "MemAvailable:",
+            "Buffers:",
+            "Cached:",
+            "SwapTotal:",
+            "SwapFree:",
+        ]);
+        const value = {};
+        for(let i = 0; i < items.length; i++){
+            let str = items[i].split(' ');
+            if(required_fields.has(str[0])){
+                let key = str[0].substring(0, str[0].length - 1);
+                value[key] = parseInt(str[str.length - 2]);
+            }
+        }
+        callback(null, value);
+    })
+}
+
+module.exports.memory = memory;
+module.exports.CPU = CPU;
