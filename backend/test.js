@@ -1,5 +1,5 @@
-const CPU = require('./monitor').CPU;
-const memory = require('./monitor').memory;
+const CPU = require('./monitor_functions').CPU;
+const memory = require('./monitor_functions').memory;
 
 /*setInterval(()=>{
     CPU(100, (err, data)=>{
