@@ -1,0 +1,64 @@
+
+.toolbar-filler {
+    flex: 1 1 auto
+}
+
+
+#top-nav{
+    margin: 0;
+    padding: 0 30px 0 30px;
+    background-color: #78909c;
+    height: 50px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap:wrap;
+    align-items: center;
+    box-shadow: 0px 3px 10px rgb(200,200,200);
+    a{
+        font-family: Roboto,"Helvetica Neue",sans-serif;
+        font-size: 14px;
+        font-weight: 500;
+        color:white;
+    }
+    .nav-toggle{
+        display: none;
+    }
+    @media (max-width:700px) {
+        .nav-toggle{
+            display: block;
+        }
+        .top-nav-item{
+            display: none;
+        }
+    }
+}
+#hidden-block{
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    margin-bottom: 4px;
+    background-color: #90a4ae;
+    box-shadow: 0px 2px 6px rgb(200,200,200);;
+    a{
+        font-family: Roboto,"Helvetica Neue",sans-serif;
+        font-size: 14px;
+        font-weight: 500;
+        color:white;
+    }
+
+}
+.search-input{
+    margin-right: 20px;
+    input{
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        border-radius: 5px;
+        outline: none;
+        border:0;
+        font-size: 15px;
+    }
+    input:focus{
+        outline: none;
+        border:0;
+    }
+}
