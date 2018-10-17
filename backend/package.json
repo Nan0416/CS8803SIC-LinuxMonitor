@@ -13,6 +13,7 @@
     "cors": "^2.8.4",
     "express": "^4.16.4",
     "http-errors": "^1.7.1",
-    "morgan": "^1.9.1"
+    "morgan": "^1.9.1",
+    "websocket": "^1.0.28"
   }
 }
