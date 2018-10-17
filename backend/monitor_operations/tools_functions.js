@@ -14,11 +14,21 @@ function ping(targets, callback){
                 callback(null,data);
             }
         });
-    }, callback);
+    }, (errs, vals)=>{
+        let err = null;
+        if(errs.size != 0){
+            let err_msg = {};
+            for(let [key, val] of errs){
+                err_msg[key]=val.message;
+            }
+            err = new Error(JSON.stringify(err_msg));
+        }
+        let val_ = {};
+        for(let [key, val] of vals){
+            val_[key] = val;
+        }
+        callback(err, val_);
+    });
 }
 
-ping([
-    "google.com",
-    "baidu.com",
-    "yelp.com"
-], console.log);
+module.exports.ping = ping;

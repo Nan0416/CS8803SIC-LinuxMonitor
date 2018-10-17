@@ -20,10 +20,11 @@ function exec(cmd, callback){
 
 function scheduler(arr, num_worker, task, callback){
     const sche = new EventEmitter();
-    let result_list = {};
+    let result_list = new Map();
+    let err_list = new Map();
     let worker_counter = 0;
     sche.once('done', ()=>{
-        callback(result_list);
+        callback(err_list, result_list);
     });
 
     sche.on('worker_complete', ()=>{
@@ -39,9 +40,9 @@ function scheduler(arr, num_worker, task, callback){
         }else{
             task(arr[i], (err, res)=>{
                 if(err){
-                    result_list[arr[i]] = err;
+                    err_list.set(arr[i], err);
                 }else if(res){
-                    result_list[arr[i]] = res;
+                    result_list.set(arr[i], res);
                 }
                 sche.emit('next', i+num_worker);
             }); 

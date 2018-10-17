@@ -8,9 +8,12 @@ const monitor_ip = "192.168.0.112";
 const monitor_port = 3000;
 const url_prefix = "/restapi";
 
-// content
+// query
 const queryCPU = require('./http_routes/query_routes/cpu_route');
 const queryMemory = require('./http_routes/query_routes/memory_route');
+
+// test
+const testLatency = require('./http_routes/test_routes/ping_route');
 
 ///////// Express configuration //////////
 const logger = require('morgan');
@@ -27,6 +30,8 @@ rest_api.use(bodyParser.urlencoded({     // to support URL-encoded bodies
 
 rest_api.use(url_prefix + '/query/cpu', queryCPU);
 rest_api.use(url_prefix + '/query/memory', queryMemory);
+
+rest_api.use(url_prefix + '/test/latency', testLatency);
 
 // unrecognized path
 rest_api.use(function(req, res, next) {
