@@ -2,12 +2,11 @@
  * Backend RESTful API based on HTTP
  *  */
 const express = require('express');
-const createError = require('http-errors');
 const rest_api = express();
 
-const monitor_ip = "192.168.0.1";
+const monitor_ip = "192.168.0.112";
 const monitor_port = 3000;
-const url_prefix = "/rest/api";
+const url_prefix = "/restapi";
 
 // content
 const queryCPU = require('./http_routes/cpu_route');
@@ -27,19 +26,17 @@ rest_api.use(bodyParser.urlencoded({     // to support URL-encoded bodies
 
 rest_api.use(url_prefix + '/query/cpu', queryCPU);
 
-
+// unrecognized path
 rest_api.use(function(req, res, next) {
-    next(createError(404));
+    res.statusCode = 400;
+    res.json({
+        success: false,
+        reasons:[`Invalid url path ${req.originalUrl}`],
+        value:null
+    });
 });
   
-  // error handler
-rest_api.use(function(err, req, res, next) {
-    // set locals, only providing error in development
-    res.locals.message = err.message;
-    res.locals.error = req.app.get('env') === 'development' ? err : {};
-    res.status(err.status || 500);
-    res.end(err.message);
-});
+
 
 
 rest_api.listen(monitor_port, monitor_ip);

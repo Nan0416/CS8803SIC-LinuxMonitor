@@ -16,6 +16,7 @@ queryRouter.route("/")
     res.sendStatus(200);
 })
 .post(cors.cors, (req, res, next)=>{
+    console.log(req.body)
     if(typeof req.body.period === 'number'){
         query_cpu(req.body.period, (err, result)=>{
             if(err){
