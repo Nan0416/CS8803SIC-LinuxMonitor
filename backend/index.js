@@ -9,7 +9,8 @@ const monitor_port = 3000;
 const url_prefix = "/restapi";
 
 // content
-const queryCPU = require('./http_routes/cpu_route');
+const queryCPU = require('./http_routes/query_routes/cpu_route');
+const queryMemory = require('./http_routes/query_routes/memory_route');
 
 ///////// Express configuration //////////
 const logger = require('morgan');
@@ -25,6 +26,7 @@ rest_api.use(bodyParser.urlencoded({     // to support URL-encoded bodies
 
 
 rest_api.use(url_prefix + '/query/cpu', queryCPU);
+rest_api.use(url_prefix + '/query/memory', queryMemory);
 
 // unrecognized path
 rest_api.use(function(req, res, next) {

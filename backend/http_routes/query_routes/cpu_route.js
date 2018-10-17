@@ -1,8 +1,8 @@
-const cors = require('./cors');
+const cors = require('../cors');
 const express = require('express');
 const queryRouter = express.Router();
 
-const query_cpu = require('../monitor_operations/monitor_functions').CPU;
+const query_cpu = require('../../monitor_operations/monitor_functions').CPU;
 
 
 ///////////////// route handler /////////////
@@ -16,7 +16,6 @@ queryRouter.route("/")
     res.sendStatus(200);
 })
 .post(cors.cors, (req, res, next)=>{
-    console.log(req.body)
     if(typeof req.body.period === 'number'){
         query_cpu(req.body.period, (err, result)=>{
             if(err){

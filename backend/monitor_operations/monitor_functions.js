@@ -12,9 +12,7 @@ function CPU(period, callback){
         period = 100;
     }
     let t1 = os.cpus();
-    console.log(period)
     setTimeout(()=>{
-        console.log(period)
         let t2 = os.cpus();
         let result = [];
         for(let i = 0; i < t1.length; i++){
