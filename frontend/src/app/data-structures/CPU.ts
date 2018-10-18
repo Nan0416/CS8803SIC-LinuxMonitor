@@ -33,6 +33,7 @@ export class CPU{
     overview: core;
     cores: core[];
     corenum: number;
+    time: number;
 }
 export class SessionCPU{
     sessionid: string;
