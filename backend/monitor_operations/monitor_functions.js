@@ -31,7 +31,8 @@ function CPU(period, callback){
         callback(null, {
             overview: overview,
             cores: result,
-            corenum: result.length
+            corenum: result.length,
+            time: Date.now()
         })
     }, period);
     //clearInterval(timeout_);
@@ -77,6 +78,7 @@ function memory(callback){
                 value[key] = parseInt(str[str.length - 2]);
             }
         }
+        value['time'] = Date.now();
         callback(null, value);
     })
 }
