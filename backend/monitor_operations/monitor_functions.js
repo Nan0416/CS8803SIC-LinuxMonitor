@@ -32,7 +32,7 @@ function CPU(period, callback){
             overview: overview,
             cores: result,
             corenum: result.length,
-            time: Date.now()
+            timestamp: Date.now()
         })
     }, period);
     //clearInterval(timeout_);
@@ -48,7 +48,111 @@ function __loadPerCore(t1, t2){
         sys: (diff_sys/ sum)
     };
 }
+/////////////////////////////////////////////////////////////////////////////////////
+//////////////////////// Network /////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+function externalNetInterface(){
+    let network_interfaces = os.networkInterfaces();
+    let network_interfaces_return = []; // [{name: .., addrs:[type:'ipv4', addr:, netmask]}]
+    for(let key in network_interfaces){
+        if(network_interfaces.hasOwnProperty(key)){
+            let interface = network_interfaces[key];
+            let result_interface = {name: key};
+            let addrs = [];
+            for(let i = 0; i < interface.length; i++){
+                let _addr = interface[i];
+                if(typeof _addr.internal === 'boolean' && !_addr.internal){
+                    let addr = {
+                        family: _addr.family,
+                        address: _addr.address,
+                        netmask: _addr.netmask
+                    }
+                    addrs.push(addr);
+                }
+            }
+            if(addrs.length !== 0){
+                result_interface['addresses'] = addrs;
+                network_interfaces_return.push(result_interface);
+            }
+        }
+    }
+    return network_interfaces_return;
+}
+const external_interface = externalNetInterface();
+const external_interface_set = new Set();
+for(let i = 0; i < external_interface.length; i++){
+    external_interface_set.add(external_interface[i].name);
+}
+function networkIO(period, callback){
+    if(typeof period === 'function'){
+        callback = period;
+        period = 1000;
+    }
+    readnetdev((err, t1)=>{
+        if(err){
+            callback(err);
+            return;
+        }
+        setTimeout(()=>{
+            readnetdev((err, t2)=>{
+                if(err){
+                    callback(err);
+                    return;
+                }
+                let result = [];
+                external_interface_set.forEach((name)=>{
+                   
+                        console.log(name,t2[name], t1[name]);
+                        result.push(
+                            {
+                                name: name,
+                                in: Math.round((t2[name]['received_bytes'] - t1[name]['received_bytes']) / period * 1000),
+                                out: Math.round((t2[name]['transmitted_bytes'] - t1[name]['transmitted_bytes']) / period * 1000),
+                            }
+                        );
+                    });
+                
+                callback(null, result);
+            });
+        }, period)
+    });
+}
+function readnetdev(callback){
+    const filepath = '/proc/net/dev';
+    fs.readFile(filepath, (err, data)=>{
+        if(err){
+            callback(err);
+            return;
+        }
+        let result = {};
+        let items = data.toString('utf8').split('\n');
+        for(let i = 2; i < items.length; i++){
+            let item = items[i];
+            let name = item.substring(0, item.indexOf(':'));
+            let data = item.substring(item.indexOf(':') + 1, item.length).split(' ');
+            if(name.lastIndexOf(' ') !== -1){
+                name = name.substring(name.lastIndexOf(' ') + 1, name.length);
+            }
+            if(!external_interface_set.has(name)){
+                continue;
+            }
+            let data_number = [];
+            
+            for(let i = 0; i < data.length; i++){
+                if(data[i] !== ''){
+                    data_number.push(parseInt(data[i]));
+                }
+            }
 
+            result[name] = {
+                received_bytes: data_number[0],
+                transmitted_bytes: data_number[8]
+            };
+            
+        }
+        callback(null, result);
+    });
+}
 /////////////////////////////////////////////////////////////////////////////////////
 //////////////////////// Memory /////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
@@ -78,10 +182,78 @@ function memory(callback){
                 value[key] = parseInt(str[str.length - 2]);
             }
         }
-        value['time'] = Date.now();
+        value['timestamp'] = Date.now();
         callback(null, value);
+    });
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+//////////////////////// CPU static info ////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+function systeminfo(callback){
+    const filepath = '/proc/cpuinfo';
+    fs.readFile(filepath, (err, data)=>{
+        if(err){
+            callback(err);
+            return;
+        }
+        try{
+            let items = data.toString('utf8').split('\n');
+            let cpu_model = "";
+            let number_cpu = 0;
+            const value = {};
+            for(let i = 0; i < items.length; i++){
+                let item_name = items[i].substring(0, items[i].indexOf('\t'));
+                if(item_name === 'processor'){
+                    number_cpu ++;
+                }
+                if(item_name === 'model name'){
+                    cpu_model = items[i].substring(items[i].indexOf(':') + 2, items[i].length);
+                }
+            }
+  
+            value['network_interfaces'] = external_interface;
+            value['hostname'] = os.hostname();
+            value['arch'] = os.arch();
+            value['kernel'] = os.type() + ' ' + os.release();
+            value['#core'] = number_cpu;
+            value['model'] = cpu_model;
+            value['timestamp'] = Date.now();
+
+
+            callback(null, value);
+        }catch(err){
+            callback(err);
+        }
+    })
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+//////////////////////// system load  ///////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+
+function loadavg(callback){
+    const filepath = '/proc/loadavg';
+    fs.readFile(filepath, (err, data)=>{
+        if(err){
+            callback(err);
+            return;
+        }
+        try{
+            let items = data.toString('utf8').split(' ');
+            value['loadavg'] = os.loadavg();
+            let number_core = os.cpus().length;
+            value['loadavg_per_core'] = [value['loadavg'][0] / number_core, value['loadavg'][1] / number_core, value['loadavg'][2] / number_core];
+            value['timestamp'] = Date.now();
+            callback(null, value);
+        }catch(err){
+            callback(err);
+        }
     })
 }
 
 module.exports.memory = memory;
 module.exports.CPU = CPU;
+module.exports.loadavg = loadavg;
+module.exports.systeminfo = systeminfo;
+module.exports.networkIO = networkIO
