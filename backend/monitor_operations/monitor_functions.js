@@ -101,18 +101,18 @@ function networkIO(period, callback){
                 }
                 let result = [];
                 external_interface_set.forEach((name)=>{
-                   
-                        console.log(name,t2[name], t1[name]);
-                        result.push(
-                            {
-                                name: name,
-                                in: Math.round((t2[name]['received_bytes'] - t1[name]['received_bytes']) / period * 1000),
-                                out: Math.round((t2[name]['transmitted_bytes'] - t1[name]['transmitted_bytes']) / period * 1000),
-                            }
-                        );
+                    console.log(name,t2[name], t1[name]);
+                    result.push({
+                        name: name,
+                        in: Math.round((t2[name]['received_bytes'] - t1[name]['received_bytes']) / period * 1000),
+                        out: Math.round((t2[name]['transmitted_bytes'] - t1[name]['transmitted_bytes']) / period * 1000),
                     });
+                });
                 
-                callback(null, result);
+                callback(null, {
+                    timestamp: Date.now(),
+                    network_io: result
+                });
             });
         }, period)
     });
@@ -153,6 +153,79 @@ function readnetdev(callback){
         callback(null, result);
     });
 }
+
+/////////////////////////////////////////////////////////////////////////////////////
+//////////////////////// Disk io ////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+function __disk_position(){
+    const path = '/proc/diskstats';
+    const exclusive = new Set();
+    exclusive.add('loop'); exclusive.add('ram');exclusive.add('dm');
+
+    let contents = fs.readFileSync(path, 'utf8').split('\n');
+    let result = [];
+    for(let i = 0; i < contents.length; i++){
+        let flag = true;
+        exclusive.forEach(ele => {
+            if(contents[i].indexOf(ele) !== -1){
+                flag = false;
+            }
+        });
+        if(contents[i].length === 0){
+            flag = false;
+        }
+        if(flag){
+            result.push(i);
+        }
+    }
+    return result;
+}
+const disk_p = __disk_position();
+
+function disk_io(){
+    const path = '/proc/diskstats';
+    let contents = fs.readFileSync(path, 'utf8').split('\n');
+    let result = {};
+    for(let i = 0; i < disk_p.length; i++){
+        let data = [];
+        let content = contents[disk_p[i]].split(' ');
+        for(let j = 0; j < content.length; j++){
+            if(content[j].length !== 0){
+                data.push(content[j]);
+            }
+        }
+        result[data[2]] = {
+            read: parseInt(data[5]) * 512,
+            write: parseInt(data[9]) * 512
+        }
+    }
+    return result;
+}
+
+function diskIO(period, callback){
+    if(typeof period === 'function'){
+        callback = period;
+        period = 1000;
+    }
+    let t1 = disk_io();
+    setTimeout(()=>{
+        let t2 = disk_io();
+        for(let disk_name in t1){
+            if(t1.hasOwnProperty(disk_name)){
+                t2[disk_name].read -= t1[disk_name].read;
+                t2[disk_name].write -= t1[disk_name].write;
+
+                t2[disk_name].read = t2[disk_name].read / period * 1000;
+                t2[disk_name].write = t2[disk_name].write / period * 1000;
+            }
+        }
+        t2['timestamp'] = Date.now();
+        callback(null, t2);
+        
+    }, period);
+}
+
+
 /////////////////////////////////////////////////////////////////////////////////////
 //////////////////////// Memory /////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
@@ -256,4 +329,5 @@ module.exports.memory = memory;
 module.exports.CPU = CPU;
 module.exports.loadavg = loadavg;
 module.exports.systeminfo = systeminfo;
-module.exports.networkIO = networkIO
+module.exports.networkIO = networkIO;
+module.exports.diskIO = diskIO;
