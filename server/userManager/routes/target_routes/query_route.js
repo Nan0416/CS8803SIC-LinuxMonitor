@@ -1,25 +1,27 @@
 /**
- * smallData_user /query/....
+ * /query
+ * query targets
+ * 
  */
 
 const cors = require('../cors');
 const express = require('express');
-const signupRouter = express.Router();
+const queryTargetsRouter = express.Router();
 
-const signup = require('../../db_operations/user_db_ops').signup;
+const queryTargets = require('../../db_operations/target_db_ops').queryTargets;
 
 
 ///////////////// route handler /////////////
 
 
-signupRouter.route("/")
+queryTargetsRouter.route("/")
 .options(cors.cors, (req, res, next) => {
     res.sendStatus(200);
 })
 .post(cors.cors, (req, res, next)=>{
-    signup(req, res, (result)=>{
+    queryTargets(req.user._id, (result)=>{
         res.statusCode = result.success?200:403;
         res.json(result);
     });
 });
-module.exports = signupRouter;
+module.exports = queryTargetsRouter;

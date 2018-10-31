@@ -15,10 +15,12 @@ const url_prefix = require('./config').url_prefix;
 
 // user
 const signupRoute = require('./routes/user_routes/signup_route');
-const loginRoute = require('./user_routes/user_routes/login_route');
-const logoutRoute = require('./user_routes/user_routes/logout_route');
-
-
+const loginRoute = require('./routes/user_routes/login_route');
+const logoutRoute = require('./routes/user_routes/logout_route');
+// target
+const registerTargetRoute = require('./routes/target_routes/register_route');
+const queryTargetsRoute = require('./routes/target_routes/query_route');
+const reportTargetRoute = require('./routes/target_routes/report_route');
 // cors
 const cors = require('./routes/cors');
 
@@ -62,6 +64,8 @@ const mongoose = require('mongoose');
 const bluebird = require('bluebird');
 
 mongoose.Promise = bluebird;
+mongoose.set('useCreateIndex', true)
+mongoose.set('useNewUrlParser', true);
 //mongoose.set('debug', true);
 const connect = mongoose.connect(mongodb_url, {
 });
@@ -92,8 +96,12 @@ function session_authentication(req, res, next){
 ////////////// Setup route /////////////////////////
 server.use(url_prefix + '/user/signup', signupRoute);
 server.use(url_prefix + '/user/login', loginRoute);
+server.use(url_prefix + '/target/report', reportTargetRoute);
 server.use(cors.cors, session_authentication);
 server.use(url_prefix + '/user/logout', logoutRoute);
+server.use(url_prefix + '/target/register', registerTargetRoute);
+server.use(url_prefix + '/target/query', queryTargetsRoute);
+
 /*user_app.use(url_prefix + '/content/query', queryContentRoute);
 user_app.use(url_prefix + '/content/recommend', queryRecommendContentRoute);
 user_app.use(url_prefix + '/content/search', searchContentRoute);
@@ -117,4 +125,4 @@ server.use(function(req, res, next) {
 });
 
 server.listen(serverPort, serverIP);
-console.log(`LinuxMonitor server is running at http://${serverPort}:${serverIP}`);
+console.log(`LinuxMonitor server is running at http://${serverIP}:${serverPort}`);

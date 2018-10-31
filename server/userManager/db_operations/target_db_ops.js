@@ -1,4 +1,4 @@
-const collectionDB = require('../db_models/collection_db');
+const targetDB = require('../db_models/target_db');
 const userDB = require('../db_models/user_db');
 const MAX_TARGET_PER_USER = require('../config').MAX_TARGET_PER_USER;
 
@@ -18,8 +18,17 @@ function registerTarget(name, protocol, ip, port, userid, callback){
      * 1. query user
      * 2. add the target
      */
+    if(! (typeof name === 'string' && typeof protocol === 'string' && 
+        typeof ip === 'string' && typeof port === 'number')){
+        callback({
+            success: true,
+            reasons:[`Invalid argument`],
+            value:null
+        });
+        return;
+    }
     userDB.findById(userid, (err, user)=>{
-        if(err){
+        if(err || !user){
             callback({
                 success: false,
                 reasons:[`Invalid request`],
@@ -41,22 +50,38 @@ function registerTarget(name, protocol, ip, port, userid, callback){
                     });
                     return;
                 }
-                user.targets.push({name: name, protocol: protocol, ip: ip, port: port});
-                user.save((err, result)=>{
-                    if(err){
-                        callback({
-                            success: false,
-                            reasons:[`Cannot make this change`],
-                            value: null
+                targetDB.create({
+                    ownerid: user._id, 
+                    name: name, 
+                    protocol: protocol, 
+                    ip: ip, 
+                    port: port}, 
+                    (err, target)=>{
+                        if(err){
+                            callback({
+                                success: false,
+                                reasons:[err.message],
+                                value: null
+                            });
+                            return;
+                        }
+                        user.targets.push(target._id);
+                        user.save((err, result)=>{
+                            if(err){
+                                callback({
+                                    success: false,
+                                    reasons:[`Cannot make this change`],
+                                    value: null
+                                });
+                            }else{
+                                callback({
+                                    success: true,
+                                    reasons:[],
+                                    value: target
+                                });
+                            }
                         });
-                    }else{
-                        callback({
-                            success: true,
-                            reasons:[],
-                            value: null
-                        });
-                    }
-                });
+                    });
             }
         }
     });
@@ -68,7 +93,7 @@ function deleteTarget(name, userid, callback){
     // 1. find this user
     // 2. remove the target
     userDB.findById(userid, (err, user)=>{
-        if(err){
+        if(err || !user){
             callback({
                 success: false,
                 reasons:[`Invalid request`],
@@ -142,7 +167,7 @@ function modifyTarget(name, userid, modification, callback){
         return;
     }
     userDB.findById(userid, (err, user)=>{
-        if(err){
+        if(err || !user){
             callback({
                 success: false,
                 reasons:[`Invalid request`],
@@ -193,8 +218,31 @@ function modifyTarget(name, userid, modification, callback){
             }
         }
     });
-
 }
+/////////////////////////////////////////////////////////////////////////
+////////////////// query all targets ////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////
+function queryTargets(userid, callback){
+    userDB.findById(userid)
+    .populate('targets')
+    .exec((err, user)=>{
+        if(err || !user){
+            callback({
+                success: false,
+                reasons:[`Invalid request`],
+                value: null
+            });
+        }else{    
+            callback({
+                success: true,
+                reasons:[],
+                value: user.targets
+            });
+        }
+    });
+}
+
 module.exports.registerTarget = registerTarget;
 module.exports.deleteTarget = deleteTarget;
 module.exports.modifyTarget = modifyTarget;
+module.exports.queryTargets = queryTargets;

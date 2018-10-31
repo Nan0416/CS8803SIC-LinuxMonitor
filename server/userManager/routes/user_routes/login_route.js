@@ -6,8 +6,8 @@ const cors = require('../cors');
 const express = require('express');
 const loginRouter = express.Router();
 
-const login = require('../../db_operations_user/user_db_ops').login;
-const queryUser = require('../../db_operations_user/user_db_ops').queryUser;
+const login = require('../../db_operations/user_db_ops').login;
+const queryUser = require('../../db_operations/user_db_ops').queryUser;
 
 ///////////////// route handler /////////////
 

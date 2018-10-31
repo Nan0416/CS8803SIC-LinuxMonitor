@@ -2,7 +2,7 @@ const userDB = require('../db_models/user_db');
 const session_id = require('../config').session_id;
 const passport = require('passport');
 
-const selected_field = "username email profile";
+const selected_field = "username email profile status";
 
 
 function validateUsername(username){
@@ -117,7 +117,7 @@ function signup(req, res, callback){
     });
 }
 //////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////
+///////////////////////login /////////////////////////////////////
 //////////////////////////////////////////////////////////////////
 
 // user can login with username or email
@@ -182,7 +182,122 @@ function login(req, res, callback){
         });
     }
 }
+///////////////////////////////////////////////////////////////////////////
+/////////////////// report status /////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
 
+function modifyTargetStatus(req, res, callback){
+    if(typeof req.body.username !== 'string' ||
+       typeof req.body.target_name !== 'string' || 
+       typeof req.body.target_status !== 'number'){
+            callback({
+                success: false,
+                reasons:["Invalid argument"],
+                value:null
+            });
+            return;
+    }
+    if(validateEmail(req.body.username)){
+        userDB.findOne({email: req.body.username}, (err, user)=>{
+            if(err){
+                callback({
+                    success: false,
+                    reasons:[err.message],
+                    value:null
+                });
+                return;
+            }else{
+                req.body.username = user.username;
+                passport.authenticate('local')(req, res, function () {
+                    // add session
+                    userDB.findOne({username: req.user.username})
+                    .populate('targets')
+                    .exec((err, user)=>{
+                        if(err){
+                            callback({
+                                success: false,
+                                reasons:["Cannot make this change"],
+                                value:null
+                            });
+                            return;
+                        }
+                        for(let i = 0; i < user.targets.length; i++){
+                            if(user.targets[i].name === req.body.target_name){
+                                user.targets[i].status = req.body.target_status;
+                                user.targets[i].save((err, target)=>{
+                                    if(err){
+                                        callback({
+                                            success: false,
+                                            reasons:[err.message],
+                                            value:null
+                                        });
+                                    }else{
+                                        callback({
+                                            success: true,
+                                            reasons:[],
+                                            value:target
+                                        });
+                                    }
+                                });
+                                return;
+                            }
+                        }
+                        callback({
+                            success: false,
+                            reasons:[`cannot find the ${req.body.target_name} target`],
+                            value:null
+                        });
+                    });
+                });
+            }
+        });
+    }else{
+        passport.authenticate('local')(req, res, function () {
+            // add session
+            userDB.findOne({username: req.user.username})
+            .populate('targets')
+            .exec((err, user)=>{
+                if(err){
+                    callback({
+                        success: false,
+                        reasons:["Cannot make this change"],
+                        value:null
+                    });
+                    return;
+                }
+                for(let i = 0; i < user.targets.length; i++){
+                    if(user.targets[i].name === req.body.target_name){
+                        user.targets[i].status = req.body.target_status;
+                        user.targets[i].save((err, target)=>{
+                            if(err){
+                                callback({
+                                    success: false,
+                                    reasons:[err.message],
+                                    value:null
+                                });
+                            }else{
+                                callback({
+                                    success: true,
+                                    reasons:[],
+                                    value:target
+                                });
+                            }
+                        });
+                        return;
+                    }
+                }
+                callback({
+                    success: false,
+                    reasons:[`cannot find the ${req.body.target_name} target`],
+                    value:null
+                });
+            });
+        });
+    }
+}
+//////////////////////////////////////////////////////////////////
+///////////// query user /////////////////////////////////////////
+/////////////////////////////////////////////////////////////////
 function queryUser(username, callback){
     userDB.findOne({username: username}, selected_field, (err, user)=>{
         if(err){
@@ -236,3 +351,4 @@ module.exports.signup = signup;
 module.exports.login = login;
 module.exports.queryUser = queryUser;
 module.exports.logout = logout;
+module.exports.modifyTargetStatus = modifyTargetStatus;

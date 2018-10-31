@@ -1,7 +1,6 @@
 const cors = require('cors');
 
 const whitelist = [
-    'http://javferry.com',
     "http://localhost:4200"
 ];
 
@@ -15,6 +14,4 @@ var corsOptionsDelegate = (req, callback) => {
     callback(null, corsOptions);
 };
 
-//module.exports.corsWithOptions = cors(corsOptionsDelegate);
-//module.exports.cors = cors();
 module.exports.cors = cors(corsOptionsDelegate);

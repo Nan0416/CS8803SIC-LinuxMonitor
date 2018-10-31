@@ -6,7 +6,7 @@ const cors = require('../cors');
 const express = require('express');
 const logoutRouter = express.Router();
 
-const logout = require('../../db_operations_user/user_db_ops').logout;
+const logout = require('../../db_operations/user_db_ops').logout;
 
 
 ///////////////// route handler /////////////
