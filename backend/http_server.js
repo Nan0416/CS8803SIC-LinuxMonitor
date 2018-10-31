@@ -11,7 +11,9 @@ const url_prefix = "/restapi";
 // query
 const queryCPU = require('./http_routes/query_routes/cpu_route');
 const queryMemory = require('./http_routes/query_routes/memory_route');
-
+const querySystemInfo = require('./http_routes/query_routes/systeminfo_route');
+const queryNetworkIO = require('./http_routes/query_routes/network_io_route');
+const queryDiskIO = require('./http_routes/query_routes/disk_io_route');
 // test
 const testLatency = require('./http_routes/test_routes/ping_route');
 
@@ -30,6 +32,9 @@ rest_api.use(bodyParser.urlencoded({     // to support URL-encoded bodies
 
 rest_api.use(url_prefix + '/query/cpu', queryCPU);
 rest_api.use(url_prefix + '/query/memory', queryMemory);
+rest_api.use(url_prefix + '/query/systeminfo', querySystemInfo);
+rest_api.use(url_prefix + '/query/networkio', queryNetworkIO);
+rest_api.use(url_prefix + '/query/diskio', queryDiskIO);
 
 rest_api.use(url_prefix + '/test/latency', testLatency);
 
