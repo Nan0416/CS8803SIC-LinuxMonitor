@@ -1,6 +1,6 @@
 import { Component , OnInit} from '@angular/core';
 import {Router, NavigationEnd} from '@angular/router';
-
+import { UserOperationService } from './services/user-operation.service';
 
 @Component({
   selector: 'app-root',
@@ -13,7 +13,9 @@ export class AppComponent implements OnInit {
   display_close: string = "none";
   constructor(
     private router: Router,
+    private userOperator: UserOperationService
   ){ }
+  username: string = null;
   ngOnInit(){
     
     this.router.events.subscribe((evt)=>{
@@ -24,7 +26,24 @@ export class AppComponent implements OnInit {
       this.display_menu  = "block";
       this.display_close  = "none";
     });
+    this.userOperator.userMount$.subscribe(data=>{
+      this.username = data.username;
+    });
+    this.userOperator.userUnMount$.subscribe(data=>{
+      this.username = null;
+    });
+    this.userOperator.queryUserWithSession();
+    /*window.addEventListener('resize', ()=>{
+      if(screen.availWidth > 700){
+        this.display_hidden_block = "none";
+        this.display_close = "none";
+        this.display_menu = "block";
+      }
+    });*/
   }
+
+
+
   sidenavToggle(){
     if(this.display_hidden_block === 'none'){
       this.display_hidden_block = 'flex';
@@ -35,5 +54,16 @@ export class AppComponent implements OnInit {
       this.display_close = "none";
       this.display_menu = "block";
     }
+  }
+  logout(){
+    this.userOperator.logout().subscribe(data=>{
+      if(data.success){
+        this.router.navigate(["login"]);
+        // clear
+      }else{
+        //show err
+        alert(JSON.stringify(data.reasons));
+      }
+    });
   }
 }

@@ -20,6 +20,25 @@
         font-weight: 500;
         color:white;
     }
+    .nav-btn, .user-dropdown{
+        
+        line-height: 50px;
+        padding: 0 15px 0 15px; 
+        font-family: Roboto,"Helvetica Neue",sans-serif;
+        font-size: 14px;
+        font-weight: 500;
+        color:white;
+        background-color: #78909c;
+        border: 0;
+        text-decoration: none;
+    }
+    .nav-btn:hover{
+        cursor: pointer;
+        background-color: #78909c;
+    }
+    .nav-btn:focus, .user-dropdown:focus{
+        outline: 0;
+    }
     .nav-toggle{
         display: none;
     }
@@ -30,6 +49,31 @@
         .top-nav-item{
             display: none;
         }
+    }
+    .user-dropdown{
+        max-width: 100px;
+        text-overflow: ellipsis;
+        /* Required for text-overflow to do anything */
+        white-space: nowrap;
+        overflow: hidden;
+    }
+    #user-dropdown-content{
+        display: none;
+        position: absolute;
+        top:50px;
+        max-width: 120px;
+        background-color: #78909c;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        z-index: 1;
+    }
+    .user-dropdown:hover #user-dropdown-content{
+        display: flex;
+        flex-direction: column;
+        button{
+            background-color: #78909c;
+            align-self: center;
+        }
+
     }
 }
 #hidden-block{
@@ -45,6 +89,27 @@
         font-weight: 500;
         color:white;
     }
+    .nav-btn{
+        background-color: #90a4ae;
+        text-align: center;
+        height: 30px;
+        line-height: 30px;
+        padding: 0 15px 0 15px; 
+        font-family: Roboto,"Helvetica Neue",sans-serif;
+        font-size: 14px;
+        font-weight: 500;
+        color:white;
+        border: 0;
+        text-decoration: none;
+    }
+    .nav-btn:hover{
+        cursor: pointer;
+        background-color: #7b8d96;
+    }
+    .nav-btn:focus{
+        outline: 0;
+    }
+    
 
 }
 .search-input{

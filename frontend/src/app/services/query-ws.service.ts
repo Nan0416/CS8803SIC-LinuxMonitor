@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import * as socketIo from 'socket.io-client';
-import {monitor_ws_server_addr } from './config';
+import {target_ws_server_addr } from './config';
 import { CPU } from '../data-structures/CPU';
 @Injectable({
   providedIn: 'root'
@@ -11,7 +11,7 @@ export class QueryWSService {
   constructor() { }
 
   public initSocket(): void {
-    this.socket = socketIo(monitor_ws_server_addr);
+    this.socket = socketIo(target_ws_server_addr);
   }
 
   public subscribe(item: String, frequency: Number = 300): void {

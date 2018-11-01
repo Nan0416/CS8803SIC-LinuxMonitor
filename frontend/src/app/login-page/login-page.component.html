@@ -1,0 +1,52 @@
+<div *ngIf="isLoginPage" id="login-container">
+  <div class="prompt">
+    <label>Username or email address</label>
+  </div>
+  <div class="input-field">
+    <input [(ngModel)]="id">
+  </div>
+  <div class="prompt">
+    <label>Password</label>
+  </div>
+  <div class="input-field">
+    <input type="password" [(ngModel)]="password">
+  </div>
+  <div class="btn-div">
+    <button id="login-btn" (click)="login()">Login</button>
+  </div>
+  <div>
+    <p>New to LinuxMonitor? <button id="signup-btn" (click)="gotoSignup()">Signup</button></p>
+  </div>
+</div>
+
+
+<div *ngIf="!isLoginPage" id="login-container">
+  <div class="prompt">
+    <label>Username</label>
+  </div>
+  <div class="input-field">
+    <input [(ngModel)]="username">
+  </div>
+  <div class="prompt">
+    <label>Email</label>
+  </div>
+  <div class="input-field">
+    <input [(ngModel)]="email" type="email">
+  </div>
+  <div class="prompt">
+    <label>Password <br>(At least 8 characters, must contain at least one lowercase and one uppercase)</label>
+  </div>
+  <div class="input-field">
+    <input type="password" [(ngModel)]="password_1">
+  </div>
+  <div class="prompt">
+    <label>Verify password</label>
+  </div>
+  <div class="input-field">
+    <input type="password" [(ngModel)]="password_2">
+  </div>
+  <div class="btn-div">
+    <button id="register-btn" (click)="signup()">Register</button>
+  </div>
+  
+</div>

@@ -8,7 +8,10 @@ import { AppComponent } from './app.component';
 import { NotFoundComponent } from './not-found/not-found.component';
 // google material
 import {MatButtonModule} from '@angular/material/button';
+// self defined component
 import { MonitorComponent } from './monitor/monitor.component';
+import { LoginPageComponent } from './login-page/login-page.component';
+import { UserPageComponent } from './user-page/user-page.component';
 
 // router
 
@@ -23,10 +26,6 @@ export function metaListMatcher(url: UrlSegment[]) {
   }
 }
 export function contentListMatcher(url: UrlSegment[]){
-  // xxx.xxx.xxx
-  // xxx.xxx.xxx/search/xxxx
-  // xxx.xxx.xxx/list/sort
-  // xxx.xxx.xxx/category/xxx[sort/page]
   const metaFields = ['list', 'search', 'category', 'pornstar', 'studio', 'director'];
   const sort = ['view', 'releaseDate', 'rating', 'duration', 'favorite'];
   if(url.length === 0 || 
@@ -46,9 +45,9 @@ export function watchLaterMatcher(url: UrlSegment[]){
 }
 const routes: Route[]=[
   { path: "monitor", component: MonitorComponent},
-  /*{ matcher: watchLaterMatcher, component: NotFoundComponent},
-  { matcher: metaListMatcher, component: NotFoundComponent},
-  { matcher: contentListMatcher , component: NotFoundComponent},*/
+  { path: "login", component: LoginPageComponent},
+  { path: "user", component: UserPageComponent},
+  /*{ matcher: watchLaterMatcher, component: NotFoundComponent},*/
   { path: "**", component: NotFoundComponent}
 ];
 
@@ -58,14 +57,16 @@ const routes: Route[]=[
   declarations: [
     AppComponent,
     NotFoundComponent,
-    MonitorComponent
+    MonitorComponent,
+    LoginPageComponent,
+    UserPageComponent
   ],
   imports: [
     BrowserModule,
     RouterModule.forRoot(routes),
     FormsModule,
     HttpClientModule,
-    MatButtonModule
+    MatButtonModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

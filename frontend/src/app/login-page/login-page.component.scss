@@ -1,0 +1,61 @@
+#login-container{
+
+    .input-field, .prompt, .btn-div{
+        width: 300px;
+        align-self: center;
+        padding: 5px;
+        
+        label{
+            text-align: left;
+            font-size: 14px;
+            font-family: Helvetica,Arial,sans-serif;
+            color:gray;
+        }
+        input{
+            
+            width:270px;
+            min-height: 20px;
+            line-height: 20px;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 2px;
+            border: solid 1px gray;
+            font-family: Helvetica,Arial,sans-serif;
+        }
+        button{
+            width: 292px;
+            height: 40px;
+            background-color:  #607D8B;
+            border: 0;
+            border-radius: 2px;
+            font-size: 14px;
+            font-family: Helvetica,Arial,sans-serif;
+            color:white;
+        }
+        button:hover{
+            cursor: pointer;
+        }
+    }
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 300px;
+    margin: 30px auto auto auto;
+    padding: 10px;
+    box-shadow: 1px 1px 2px gray;
+    border-radius: 3px;
+    #signup-btn{
+        width: 100px;
+        height: 30px;
+        margin-left: 20px;
+        background-color: #607D8B;
+        border: 0;
+        border-radius: 2px;
+        font-size: 14px;
+        font-family: Helvetica,Arial,sans-serif;
+        color:white;
+    }
+    #signup-btn:hover{
+        cursor: pointer;
+    }
+}

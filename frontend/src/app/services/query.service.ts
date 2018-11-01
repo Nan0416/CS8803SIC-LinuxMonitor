@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable ,of} from 'rxjs';
 import { SessionCPU, CPU } from '../data-structures/CPU';
-import {monitor_server_addr, restapi_prefix } from './config';
+import {target_server_addr, restapi_prefix } from './config';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +10,7 @@ import {monitor_server_addr, restapi_prefix } from './config';
 
 export class QueryService {
   
-  monitor_server_url :string = monitor_server_addr + restapi_prefix;
+  monitor_server_url :string = target_server_addr + restapi_prefix;
   
   constructor(
     private http: HttpClient,
