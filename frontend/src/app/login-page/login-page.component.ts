@@ -15,24 +15,26 @@ export class LoginPageComponent implements OnInit {
   isLoginPage:boolean = true;
   id:string = ""; // username or email address;
   password: string = ""; // password
-
+  error: string = null;
 
   username: string="";
   email: string="";
   password_1: string = "";
   password_2: string = "";
+  signup_error: string = null;
 
   ngOnInit() {
     
   }
   
   login(){
+    this.error = null;
     this.userOperator.login(this.id, this.password).subscribe(data=>{
       if(data){
         this.router.navigate(["/"]);
       }else{
         //show err
-        alert("Login failed");
+        this.error = "Invalid username or password";
       }
     });
   }
@@ -92,19 +94,25 @@ validatePassword(password){
   }
   
   signup(){
+    this.signup_error = null;
     if(this.userOperator.user !== null){
+      this.signup_error = "You already login";
       return;
     }
     if(this.password_1 !== this.password_2){
+      this.signup_error = "Please make sure you enter the same password";
       return;
     }
     if(this.validateUsername(this.username) !== "OK"){
+      this.signup_error = "Invalid username";
       return;
     }
     if(this.validatePassword(this.password_1) !== "OK"){
+      this.signup_error= "Invalid password";
       return;
     }
     if(!this.validateEmail(this.email)){
+      this.signup_error = "Invalid email";
       return;
     }
     
@@ -113,7 +121,7 @@ validatePassword(password){
         // success
         this.router.navigate(["/user"]);
       }else{
-
+        this.signup_error = "Username or email is already registered."
       }
     });
   }

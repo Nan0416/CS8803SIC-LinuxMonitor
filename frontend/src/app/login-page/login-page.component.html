@@ -11,6 +11,9 @@
   <div class="input-field">
     <input type="password" [(ngModel)]="password">
   </div>
+  <div *ngIf="error" class="error-msg">
+    <p>{{error}}</p>
+  </div>
   <div class="btn-div">
     <button id="login-btn" (click)="login()">Login</button>
   </div>
@@ -44,6 +47,9 @@
   </div>
   <div class="input-field">
     <input type="password" [(ngModel)]="password_2">
+  </div>
+  <div *ngIf="signup_error" class="error-msg">
+    <p>{{signup_error}}</p>
   </div>
   <div class="btn-div">
     <button id="register-btn" (click)="signup()">Register</button>

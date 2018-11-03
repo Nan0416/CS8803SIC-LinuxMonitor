@@ -12,6 +12,7 @@ import {MatButtonModule} from '@angular/material/button';
 import { MonitorComponent } from './monitor/monitor.component';
 import { LoginPageComponent } from './login-page/login-page.component';
 import { UserPageComponent } from './user-page/user-page.component';
+import { TargetComponent } from './target/target.component';
 
 // router
 
@@ -46,6 +47,7 @@ export function watchLaterMatcher(url: UrlSegment[]){
 const routes: Route[]=[
   { path: "monitor", component: MonitorComponent},
   { path: "login", component: LoginPageComponent},
+  { path: "targets", component: TargetComponent},
   { path: "user", component: UserPageComponent},
   /*{ matcher: watchLaterMatcher, component: NotFoundComponent},*/
   { path: "**", component: NotFoundComponent}
@@ -59,7 +61,8 @@ const routes: Route[]=[
     NotFoundComponent,
     MonitorComponent,
     LoginPageComponent,
-    UserPageComponent
+    UserPageComponent,
+    TargetComponent
   ],
   imports: [
     BrowserModule,

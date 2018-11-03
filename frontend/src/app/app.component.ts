@@ -1,7 +1,7 @@
 import { Component , OnInit} from '@angular/core';
 import {Router, NavigationEnd} from '@angular/router';
 import { UserOperationService } from './services/user-operation.service';
-
+import { TargetOperationService } from './services/target-operation.service';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -13,7 +13,8 @@ export class AppComponent implements OnInit {
   display_close: string = "none";
   constructor(
     private router: Router,
-    private userOperator: UserOperationService
+    private userOperator: UserOperationService,
+    private targetOperator: TargetOperationService
   ){ }
   username: string = null;
   ngOnInit(){
@@ -33,13 +34,7 @@ export class AppComponent implements OnInit {
       this.username = null;
     });
     this.userOperator.queryUserWithSession();
-    /*window.addEventListener('resize', ()=>{
-      if(screen.availWidth > 700){
-        this.display_hidden_block = "none";
-        this.display_close = "none";
-        this.display_menu = "block";
-      }
-    });*/
+    this.targetOperator.queryTargets();
   }
 
 

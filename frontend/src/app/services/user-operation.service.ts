@@ -12,7 +12,7 @@ import {server_addr, url_prefix} from './config';
 export class UserOperationService {
 
 
-  smallData_user_addr:string = server_addr + url_prefix;
+  service_url:string = server_addr + url_prefix;
   user: User = null;
 
   // Observable string sources
@@ -51,7 +51,7 @@ export class UserOperationService {
         this.__notifyUserUnMountSubscribers();
       }
     };
-    let isLoginUrl = `${this.smallData_user_addr}/user/login/query`;
+    let isLoginUrl = `${this.service_url}/user/login/query`;
     this.http.post(isLoginUrl, {}, {withCredentials: true }).subscribe(httpObserver);
   }
 
@@ -77,7 +77,7 @@ export class UserOperationService {
         }
       };
       /////// login now ///////////
-      let loginUrl = `${this.smallData_user_addr}/user/login`;
+      let loginUrl = `${this.service_url}/user/login`;
       let value = {username: id, password: password};
       this.http.post(loginUrl, value, {withCredentials: true }).subscribe(httpObserver);
       //
@@ -108,7 +108,7 @@ export class UserOperationService {
        }
      };
      /////// login now ///////////
-     let loginUrl = `${this.smallData_user_addr}/user/logout`;
+     let loginUrl = `${this.service_url}/user/logout`;
      this.http.post(loginUrl, {},{withCredentials: true }).subscribe(httpObserver);
      //
    });
@@ -137,7 +137,7 @@ export class UserOperationService {
        }
      };
      /////// signup now ///////////
-     let loginUrl = `${this.smallData_user_addr}/user/signup`;
+     let loginUrl = `${this.service_url}/user/signup`;
      let value = {username: username, email:email, password: password};
      this.http.post(loginUrl, value, {withCredentials: true }).subscribe(httpObserver);
      //

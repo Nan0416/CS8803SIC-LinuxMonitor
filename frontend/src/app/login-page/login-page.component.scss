@@ -1,5 +1,8 @@
 #login-container{
-
+    .error-msg{
+        font-size:14px;
+        color: red;
+    }
     .input-field, .prompt, .btn-div{
         width: 300px;
         align-self: center;

@@ -1,0 +1,55 @@
+<div class="target-container">
+  <div class="target-list">
+    <div class="target-item">
+      <div class="target-field target-name">
+        <p>Target Name</p>
+      </div>
+      <div class="target-field target-origin">
+        <p>Target Origin</p>    
+      </div>
+      <div class="target-field target-status">
+        <p>Target Status</p>
+      </div>
+      <div class="target-field remove-target">
+        <p>Remove Target</p>
+      </div>
+    </div>
+    <div class="target-item" *ngFor="let target of targets">
+      <div class="target-field target-name">
+        <p>{{target.name}}</p>
+      </div>
+      <div class="target-field target-origin">
+        <p>{{target.protocol}}://{{target.ip}}:{{target.port}}</p>    
+      </div>
+      <div class="target-field target-status">
+        <p><span class="dot" [ngStyle]="{'background-color':target.status === 1?'green':'red'}"></span></p>
+      </div>
+      <div class="target-field remove-target">
+        <button (click)="removeTarget(target.name)">Remove</button>
+      </div>
+    </div>
+  </div>
+  <div class="target-input">
+    <div class="input-item name-input">
+      <input [(ngModel)]="name_input" placeholder="Target Name">
+    </div>
+    <div class="input-item protocol-input">
+      <select name="protocol" [(ngModel)]="protocol_input">
+        <option value="http" selected="true">HTTP</option>
+        <option value="ws">WebSocket</option>
+      </select>
+    </div>
+    <div class="input-item ip-input">
+      <input [(ngModel)]="ip_input" placeholder="Target IP/Domain">
+    </div>
+    <div class="input-item port-input">
+      <input type="number" min="0" max="65536" [(ngModel)]="port_input" placeholder="9000">
+    </div>
+    <div class="input-item submit-btn">
+      <button (click)="addTarget()">Add</button>
+    </div>
+  </div>
+  <div *ngIf="error_msg" class="error-msg">
+    <p>{{error_msg}}</p>
+  </div>
+</div>

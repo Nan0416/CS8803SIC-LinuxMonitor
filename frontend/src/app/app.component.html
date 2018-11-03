@@ -1,6 +1,7 @@
 <div id="top-nav">
   <a class="nav-btn" routerLink="/">Home</a>
-  <a class="nav-btn top-nav-item" routerLink="/monitor">Monitor</a>
+  <a *ngIf="username" class="nav-btn top-nav-item" routerLink="/monitor">Monitor</a>
+  <a *ngIf="username" class="nav-btn top-nav-item" routerLink="/targets">Targets</a>
   <a class="nav-btn top-nav-item" routerLink="/about">About</a>
   <span class="toolbar-filler"></span>
   <a *ngIf="!username" class="nav-btn top-nav-item" routerLink="/login"><i class="fas fa-user"></i> Login / Sign up</a>
@@ -8,7 +9,7 @@
     <span class="nav-btn">{{username}}</span>
     <div id="user-dropdown-content">
       <button class="nav-btn" (click)="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
-      <a class="nav-btn" routerLink="/user">Manager</a>
+      <a class="nav-btn" routerLink="/user">Account</a>
     </div>
   </div>
 
@@ -18,7 +19,8 @@
   </button> 
 </div>
 <div id="hidden-block" [ngStyle]="{'display': display_hidden_block}">
-    <a class="nav-btn" routerLink="/monitor">Monitor</a>
+    <a *ngIf="username" class="nav-btn" routerLink="/monitor">Monitor</a>
+    <a *ngIf="username" class="nav-btn" routerLink="/targets">Targets</a>
     <a class="nav-btn"  routerLink="/about">About</a>
     <a *ngIf="!username" class="nav-btn" routerLink="/login"><i class="fas fa-user"></i> Login / Sign up</a>
     <a *ngIf="username" class="nav-btn" routerLink="/user">{{username}}</a>
