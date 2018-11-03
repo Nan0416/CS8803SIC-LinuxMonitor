@@ -4,7 +4,7 @@ import { Observable ,of, Subscriber, Subject} from 'rxjs';
 import { Result } from '../data-structures/GeneralResult';
 import { Target, SessionTarget } from '../data-structures/Target';
 import {server_addr, url_prefix} from './config';
-
+import * as socketIo from 'socket.io-client';
 @Injectable({
   providedIn: 'root'
 })
@@ -19,11 +19,11 @@ export class TargetOperationService {
   // Observable leaving/status update/ 
   private targetModificationEvt_ = new Subject<null>();
   public targetModification$ = this.targetModificationEvt_.asObservable();
-
+  private socket;
   constructor(
     private http: HttpClient
   ) { 
-    
+    this.socket = socketIo(server_addr);
   }
   __notifyTargetModificationSubscribers(){
     this.targetModificationEvt_.next();
@@ -108,7 +108,9 @@ export class TargetOperationService {
   }
   
   // listen to change status (ws)
-
+  public subscribe(): void {
+    this.socket.emit('subscribe', JSON.stringify({}));
+  }
 
 
   removeTarget(name: string): Observable<Result>{

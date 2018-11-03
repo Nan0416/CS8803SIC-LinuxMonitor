@@ -5,10 +5,14 @@
  */
 
 const express = require('express');
-const server = express();
+const app = express();
+var server = require('http').createServer(app);
+var io = require('socket.io')(server);
+
 
 const serverIP = require('./config').serverIP;
 const serverPort = require('./config').serverPort;
+const serverWSPort = require('./config').serverWSPort;
 const mongodb_url = require('./config').mongodb_url;
 const url_prefix = require('./config').url_prefix;
 
@@ -32,23 +36,28 @@ const FileStore = require('session-file-store')(session);
 const session_key = require('./config').session_key;
 const session_id = require('./config').session_id;
 const passport = require('passport');
+////////// Websocket (socket.io) middleware ///////
+const sharedsession = require("express-socket.io-session");
 
-server.use(logger('dev'));
-server.use(bodyParser.json());
-server.use(bodyParser.urlencoded({     // to support URL-encoded bodies
+
+app.use(logger('dev'));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
     limit: '50mb',
     extended: true
 }));
 // user_app.use(cookieParser(cookie_key));
-server.use(session({
+const session_config = session({
     name: session_id,
     secret: session_key,
     saveUninitialized: false,
     resave: false,
     store: new FileStore(),
-}));
-server.use(passport.initialize());
-server.use(passport.session());
+});
+app.use(session_config);
+app.use(passport.initialize());
+app.use(passport.session());
+io.use(sharedsession(session_config));
 
 ////////// Passport configuration ////////////////////////
 const userDB = require('./db_models/user_db');
@@ -93,36 +102,42 @@ function session_authentication(req, res, next){
     }
 }
 
-////////////// Setup route /////////////////////////
-server.use(url_prefix + '/user/signup', signupRoute);
-server.use(url_prefix + '/user/login', loginRoute);
-server.use(url_prefix + '/target/report', reportTargetRoute);
-server.use(cors.cors, session_authentication);
-server.use(url_prefix + '/user/logout', logoutRoute);
-server.use(url_prefix + '/target/register', registerTargetRoute);
-server.use(url_prefix + '/target/query', queryTargetsRoute);
+//////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////Route setup         /////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
 
-/*user_app.use(url_prefix + '/content/query', queryContentRoute);
-user_app.use(url_prefix + '/content/recommend', queryRecommendContentRoute);
-user_app.use(url_prefix + '/content/search', searchContentRoute);
-user_app.use(url_prefix + '/meta/query', queryMetaRoute);
-user_app.use(url_prefix + '/collection/create', createCollectionRoute);
-user_app.use(url_prefix + '/collection/delete', deleteCollectionRoute);
-user_app.use(url_prefix + '/collection/update', updateCollectionRoute);
-user_app.use(url_prefix + '/collection/subscribe', subscribeCollectionRoute);
-user_app.use(url_prefix + '/collection/unsubscribe', unSubscribeCollectionRoute);
-user_app.use(url_prefix + '/collection/addcontent', addContentToCollectionRouter);
-user_app.use(url_prefix + '/collection/deletecontent', deleteContentFromCollectionRoute);*/
+app.use(url_prefix + '/user/signup', signupRoute);
+app.use(url_prefix + '/user/login', loginRoute);
+app.use(url_prefix + '/target/report', reportTargetRoute);
+app.use(cors.cors, session_authentication);
+app.use(url_prefix + '/user/logout', logoutRoute);
+app.use(url_prefix + '/target/register', registerTargetRoute);
+app.use(url_prefix + '/target/query', queryTargetsRoute);
 
 
-server.use(function(req, res, next) {
-    res.statusCode = 400;
-    res.json({
-        success: false,
-        reasons: [`Invalid request on ${req.url}`],
-        value: null
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////  websocket setup   ////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+
+io.on('connection', (socket)=>{
+    console.log(socket.handshake.session);
+    socket.on('disconnect', ()=>{
+        console.log('stopped');
+        WSEvent.unsubscribe(socket);
     });
+    socket.on('subscribe', (msg)=>{
+        
+        
+        
+    });
+    console.log('connected');
 });
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
 
 server.listen(serverPort, serverIP);
 console.log(`LinuxMonitor server is running at http://${serverIP}:${serverPort}`);

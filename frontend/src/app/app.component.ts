@@ -29,6 +29,7 @@ export class AppComponent implements OnInit {
     });
     this.userOperator.userMount$.subscribe(data=>{
       this.username = data.username;
+      this.targetOperator.subscribe();
     });
     this.userOperator.userUnMount$.subscribe(data=>{
       this.username = null;
