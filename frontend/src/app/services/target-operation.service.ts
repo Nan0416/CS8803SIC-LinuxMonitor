@@ -19,11 +19,11 @@ export class TargetOperationService {
   // Observable leaving/status update/ 
   private targetModificationEvt_ = new Subject<null>();
   public targetModification$ = this.targetModificationEvt_.asObservable();
-  private socket;
+  private socket = null;
   constructor(
     private http: HttpClient
   ) { 
-    this.socket = socketIo(server_addr);
+   this.ws_open();
   }
   __notifyTargetModificationSubscribers(){
     this.targetModificationEvt_.next();
@@ -106,12 +106,34 @@ export class TargetOperationService {
     });
     return registerTarget;
   }
-  
-  // listen to change status (ws)
-  public subscribe(): void {
-    this.socket.emit('subscribe', JSON.stringify({}));
+  public ws_open():void{
+    this.socket = socketIo(server_addr);
   }
-
+  public ws_close(): void{
+    if(this.socket !== null){
+      this.socket.close();
+      this.socket = null;
+    }
+  }
+  public ws_subscribe(): void {
+    if(this.socket === null){
+      return;
+    }
+    this.socket.on('target', (data)=>{
+      let target: Target = {
+          name: data.name,
+          protocol: data.protocol,
+          ip: data.ip,
+          port: data.port,
+          status: data.status
+      };
+      this.last_modified_target = target;
+      this.targets.set(target.name, target);
+      this.__notifyTargetModificationSubscribers();
+    });
+    this.socket.emit('subscribe');
+  }
+  
 
   removeTarget(name: string): Observable<Result>{
     const removeReq: Observable<Result> = new Observable((observor)=>{});

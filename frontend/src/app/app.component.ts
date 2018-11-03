@@ -29,7 +29,9 @@ export class AppComponent implements OnInit {
     });
     this.userOperator.userMount$.subscribe(data=>{
       this.username = data.username;
-      this.targetOperator.subscribe();
+      this.targetOperator.ws_open();
+      this.targetOperator.ws_subscribe();
+      this.targetOperator.queryTargets();
     });
     this.userOperator.userUnMount$.subscribe(data=>{
       this.username = null;
@@ -55,6 +57,7 @@ export class AppComponent implements OnInit {
     this.userOperator.logout().subscribe(data=>{
       if(data.success){
         this.router.navigate(["login"]);
+        this.targetOperator.ws_close();
         // clear
       }else{
         //show err

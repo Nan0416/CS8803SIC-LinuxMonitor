@@ -1,7 +1,8 @@
 const targetDB = require('../db_models/target_db');
 const userDB = require('../db_models/user_db');
 const MAX_TARGET_PER_USER = require('../config').MAX_TARGET_PER_USER;
-
+const publishTo = require('../ws_events/socket_manager').publishTo;
+const useWS = require('../config').useWS;
 /**
  * collection operation involves two collection: collection and user.
  */
@@ -74,6 +75,9 @@ function registerTarget(name, protocol, ip, port, userid, callback){
                                     value: null
                                 });
                             }else{
+                                if(useWS){
+                                    publishTo(user.username, target.toObject());
+                                }
                                 callback({
                                     success: true,
                                     reasons:[],

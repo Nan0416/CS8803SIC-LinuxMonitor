@@ -118,20 +118,27 @@ app.use(url_prefix + '/target/query', queryTargetsRoute);
 //////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////  websocket setup   ////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
-
+const addSocket = require('./ws_events/socket_manager').addSocket;
+const deleteSocket = require('./ws_events/socket_manager').deleteSocket;
+/** 
+ * 1. one browser tag -> mutliple socket
+ * 2. one user has multiple tag
+*/
 
 io.on('connection', (socket)=>{
-    console.log(socket.handshake.session);
+    if(!socket.handshake.session.passport.user){
+        socket.emit('unauthorized');
+        socket.disconnect('unauthorized');
+        return;
+    }
+    let username = socket.handshake.session.passport.user;
+    // routes, or topics
     socket.on('disconnect', ()=>{
-        console.log('stopped');
-        WSEvent.unsubscribe(socket);
+        deleteSocket(username, socket);
     });
-    socket.on('subscribe', (msg)=>{
-        
-        
-        
+    socket.on('subscribe', (id, msg)=>{
+        addSocket(username, socket);
     });
-    console.log('connected');
 });
 
 //////////////////////////////////////////////////////////////////////////////////////////////

@@ -3,6 +3,7 @@ module.exports.serverPort = 3000;
 module.exports.serverWSPort = 3001;
 module.exports.mongodb_url = "mongodb://localhost:27017/linuxmonitor";
 
+module.exports.useWS = true;
 
 module.exports.session_id = "sessionid";
 module.exports.session_key = "qwu98rhewiruhbfwy34";

@@ -56,6 +56,12 @@ export class TargetComponent implements OnInit , OnDestroy{
     this.targetOperator.registerTarget(this.name_input, this.protocol_input, this.ip_input, port).subscribe(data=>{
       if(!data.success){
         this.error_msg = data.reasons[0];
+      }else{
+        this.name_input  = null; 
+        this.protocol_input  = "http";
+        this.ip_input  = null;
+        this.port_input  = null;
+        this.error_msg = null;
       }
     });
   }

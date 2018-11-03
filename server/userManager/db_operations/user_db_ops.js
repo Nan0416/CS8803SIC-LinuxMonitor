@@ -3,7 +3,7 @@ const session_id = require('../config').session_id;
 const passport = require('passport');
 
 const selected_field = "username email profile status";
-
+const publishTo = require('../ws_events/socket_manager').publishTo;
 
 function validateUsername(username){
     // 6 - 20 char from [0-9, a-z, A-Z]
@@ -276,6 +276,8 @@ function modifyTargetStatus(req, res, callback){
                                     value:null
                                 });
                             }else{
+                                // publish to client
+                                publishTo(user.username, target.toObject());
                                 callback({
                                     success: true,
                                     reasons:[],
