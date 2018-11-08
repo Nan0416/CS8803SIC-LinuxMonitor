@@ -1,5 +1,6 @@
 const request = require('request');
 const username = require('./config').username;
+const password = require('./config').password;
 const target_name = require('./config').target_name;
 function join(){
     let options = {
@@ -8,7 +9,8 @@ function join(){
       json:{
         username: username,
         target_name: target_name,
-        target_status:1
+        target_status:1,
+        password: password
       }
     };
     request(options, (err, res, body)=>{
@@ -26,7 +28,8 @@ function leave(){
     json:{
       username: username,
       target_name: target_name,
-      target_status:0
+      target_status:0,
+      password: password
     }
   };
   request(options, (err, res, body)=>{
