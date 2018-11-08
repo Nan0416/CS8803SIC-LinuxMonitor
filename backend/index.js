@@ -75,5 +75,7 @@ join();
 
 process.on('SIGINT', () => {
     console.log(`About to exit with code:`);
-    leave();
+    leave(()=>{
+        process.exit(0);
+    });
 });
