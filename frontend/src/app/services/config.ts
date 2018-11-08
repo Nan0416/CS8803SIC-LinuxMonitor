@@ -1,4 +1,4 @@
-export const server_addr = "http://localhost:3000";
+export const server_addr = "http://monitor.sousys.com";
 export const url_prefix = "/user/api";
 
 
