@@ -8,3 +8,4 @@ module.exports.session_id = "sessionid";
 module.exports.session_key = "qwu98rhewiruhbfwy34";
 module.exports.MAX_TARGET_PER_USER = 1000;
 module.exports.url_prefix = "/user/api";
+module.exports.ws_prefix = "/report/socket.io";

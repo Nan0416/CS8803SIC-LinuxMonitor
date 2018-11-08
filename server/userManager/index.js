@@ -6,15 +6,16 @@
 
 const express = require('express');
 const app = express();
-var server = require('http').createServer(app);
-var io = require('socket.io')(server);
+const server = require('http').createServer(app);
+const ws_prefix = require('./config').ws_prefix;
+
+const io = require('socket.io')(server, { path: ws_prefix});
 
 
 const serverIP = require('./config').serverIP;
 const serverPort = require('./config').serverPort;
 const mongodb_url = require('./config').mongodb_url;
 const url_prefix = require('./config').url_prefix;
-
 
 // user
 const signupRoute = require('./routes/user_routes/signup_route');
