@@ -107,7 +107,7 @@ export class TargetOperationService {
     return registerTarget;
   }
   public ws_open():void{
-    this.socket = socketIo(server_addr);
+    this.socket = socketIo(server_addr, {path: "/report/socket.io"});
   }
   public ws_close(): void{
     if(this.socket !== null){
