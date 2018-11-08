@@ -68,7 +68,7 @@ io.on('connection', (socket)=>{
     socket.on("unsubscribe", (msg)=>{
 
     });
-});n
+});
 
 app.listen(port, ip);
 console.log(`monitor server is running at http://${ip}:${port}`);
