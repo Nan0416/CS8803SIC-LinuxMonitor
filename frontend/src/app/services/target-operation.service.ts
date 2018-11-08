@@ -5,6 +5,7 @@ import { Result } from '../data-structures/GeneralResult';
 import { Target, SessionTarget } from '../data-structures/Target';
 import {server_addr, url_prefix} from './config';
 import * as socketIo from 'socket.io-client';
+import {ws_prefix} from './config';
 @Injectable({
   providedIn: 'root'
 })
@@ -107,7 +108,7 @@ export class TargetOperationService {
     return registerTarget;
   }
   public ws_open():void{
-    this.socket = socketIo(server_addr, {path: "/report/socket.io"});
+    this.socket = socketIo(server_addr, {path: ws_prefix});
   }
   public ws_close(): void{
     if(this.socket !== null){
