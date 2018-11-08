@@ -8,11 +8,10 @@ var io = require('socket.io')(server);
 
 const ip = require('./config').ip;
 const port = require('./config').port;
-const username = require('./config').username;
-const password = require('./config').password;
-const mongodb_url = require('./config').mongodb_url;
 const url_prefix = "/restapi";
 
+const join = require('./report').join;
+const leave = require('./report').leave;
 
 // query
 const queryCPU = require('./http_routes/query_routes/cpu_route');
@@ -72,3 +71,4 @@ io.on('connection', (socket)=>{
 
 app.listen(port, ip);
 console.log(`monitor server is running at http://${ip}:${port}`);
+join();

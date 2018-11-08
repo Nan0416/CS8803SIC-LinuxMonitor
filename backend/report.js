@@ -1,28 +1,41 @@
+const request = require('request');
+const username = require('./config').username;
+const target_name = require('./config').target_name;
 function join(){
-    var options = {
-        hostname: 'www.postcatcher.in',
-          port: 80,
-          path: '/catchers/5531b7faacde130300002495',
-          method: 'POST',
-          headers: {
-                  'Content-Type': 'application/json',
-              }
-            };
-    var req = http.request(options, function(res) {
-      console.log('Status: ' + res.statusCode);
-      console.log('Headers: ' + JSON.stringify(res.headers));
-      res.setEncoding('utf8');
-      res.on('data', function (body) {
-        console.log('Body: ' + body);
-        fs.writeFile("test.txt", body, function(err) {
-        if(err) {
-            return console.log(err);
-        }
-                  console.log("The file was saved!");
-        }); 
-      });
+    let options = {
+      uri: "http://monitor.sousys.com/user/api/target/report",
+      method:"POST",
+      json:{
+        username: username,
+        target_name: target_name,
+        target_status:1
+      }
+    };
+    request(options, (err, res, body)=>{
+      if(err){
+        console.log(`Fail to notify the server: ${err.message}`);
+      }else{
+        console.log(body);
+      }
     });
 }
 function leave(){
-
+  let options = {
+    uri: "http://monitor.sousys.com/user/api/target/report",
+    method:"POST",
+    json:{
+      username: username,
+      target_name: target_name,
+      target_status:0
+    }
+  };
+  request(options, (err, res, body)=>{
+    if(err){
+      console.log(`Fail to notify the server: ${err.message}`);
+    }else{
+      console.log(body);
+    }
+  });
 }
+module.exports.join = join;
+module.exports.leave = leave;
