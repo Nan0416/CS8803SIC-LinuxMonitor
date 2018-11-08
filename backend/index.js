@@ -6,8 +6,8 @@ const app = express();
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 
-const serverIP = require('./config').ip;
-const serverPort = require('./config').port;
+const ip = require('./config').ip;
+const port = require('./config').port;
 const username = require('./config').username;
 const password = require('./config').password;
 const mongodb_url = require('./config').mongodb_url;
@@ -60,15 +60,15 @@ io.on('connection', (socket)=>{
         return;
     }
     socket.on('disconnect', (msg)=>{
-        deleteSocket(username, socket);
+        //deleteSocket(username, socket);
     });
     socket.on('subscribe', (msg)=>{
-        addSocket(username, socket);
+        //addSocket(username, socket);
     });
     socket.on("unsubscribe", (msg)=>{
 
     });
-});
+});n
 
 app.listen(port, ip);
 console.log(`monitor server is running at http://${ip}:${port}`);
