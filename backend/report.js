@@ -21,7 +21,7 @@ function join(){
       }
     });
 }
-function leave(){
+function leave(callack){
   let options = {
     uri: "http://monitor.sousys.com/user/api/target/report",
     method:"POST",
@@ -38,6 +38,7 @@ function leave(){
     }else{
       console.log(body);
     }
+    callack();
   });
 }
 module.exports.join = join;
