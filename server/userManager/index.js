@@ -12,7 +12,6 @@ var io = require('socket.io')(server);
 
 const serverIP = require('./config').serverIP;
 const serverPort = require('./config').serverPort;
-const serverWSPort = require('./config').serverWSPort;
 const mongodb_url = require('./config').mongodb_url;
 const url_prefix = require('./config').url_prefix;
 
@@ -126,7 +125,7 @@ const deleteSocket = require('./ws_events/socket_manager').deleteSocket;
 */
 
 io.on('connection', (socket)=>{
-    if(!socket.handshake.session.passport.user){
+    if(!socket.handshake.session.passport || !socket.handshake.session.passport.user){
         socket.emit('unauthorized');
         socket.disconnect('unauthorized');
         return;
