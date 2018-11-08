@@ -70,5 +70,5 @@ io.on('connection', (socket)=>{
     });
 });
 
-app.listen(monitor_port, monitor_ip);
+app.listen(port, ip);
 console.log(`monitor server is running at http://${ip}:${port}`);
