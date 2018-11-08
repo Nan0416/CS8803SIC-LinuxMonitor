@@ -73,6 +73,7 @@ app.listen(port, ip);
 console.log(`monitor server is running at http://${ip}:${port}`);
 join();
 
-process.on('exit', (code) => {
-    console.log(`About to exit with code: ${code}`);
+process.on('SIGINT', () => {
+    console.log(`About to exit with code:`);
+    leave();
 });
