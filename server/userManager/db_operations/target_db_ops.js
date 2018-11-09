@@ -113,7 +113,7 @@ function deleteTarget(name, userid, callback){
                     });
                 }else if(userInfo){
                     let index = userInfo.targets.indexOf(result._id);
-                    userInfo.splice(index, 1);
+                    userInfo.targets.splice(index, 1);
                     userInfo.save((err, newUser)=>{
                         if(err){
                             callback({
