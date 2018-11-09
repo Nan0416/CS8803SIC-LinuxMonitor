@@ -96,7 +96,7 @@ function registerTarget(name, protocol, ip, port, userid, callback){
 function deleteTarget(name, userid, callback){
     // 1. find this target
     // 2. remove the target
-    targetDB.findOneAndRemove({ownerid: userid, name: name}, (err, result)=>{
+    targetDB.findOneAndDelete({ownerid: userid, name: name}, (err, result)=>{
         if(err){
             callback({
                 success: false,
@@ -104,9 +104,45 @@ function deleteTarget(name, userid, callback){
                 value:null
             });
         }else if(result){
-            console.log(result);
+            userDB.findById(userid, (err, userInfo)=>{
+                if(err){
+                    callback({
+                        success: false,
+                        reasons:[err.message],
+                        value:null,
+                    });
+                }else if(userInfo){
+                    let index = userInfo.targets.indexOf(result._id);
+                    userInfo.splice(index, 1);
+                    userInfo.save((err, newUser)=>{
+                        if(err){
+                            callback({
+                                success: false,
+                                reasons:[err.message],
+                                value:null
+                            });
+                        }else{
+                            callback({
+                                success: true,
+                                reasons: [],
+                                value:null
+                            });
+                        }
+                    });
+                }else{
+                    callback({
+                        success: false,
+                        reasons:[`Cannot find user`],
+                        value:null,
+                    });
+                }
+            })
         }else{
-            console.log(null);
+            callback({
+                success: true,
+                reasons:[`Not found`],
+                value:null
+            });
         }
     });
 }
