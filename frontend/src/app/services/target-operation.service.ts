@@ -34,6 +34,8 @@ export class TargetOperationService {
     const httpObserver = {
       next: data=>{
         if(data.success && data.value){
+          this.targets.clear();
+          this.last_modified_target = null;
           for(let i = 0; i < data.value.length; i++){
             let target: Target = {
               name: data.value[i].name,
@@ -136,8 +138,33 @@ export class TargetOperationService {
   }
   
 
-  removeTarget(name: string): Observable<Result>{
-    const removeReq: Observable<Result> = new Observable((observor)=>{});
+  deleteTarget(name: string): Observable<Result>{
+    const removeReq: Observable<Result> = new Observable((observor)=>{
+      const httpObserver = {
+        next: data=>{
+          if(data.success){
+            this.queryTargets();
+          }
+          observor.next({
+            success: data.succes,
+            value: data.success? data.value: null,
+            reasons: data.reasons
+          });
+        },
+        error: err=>{
+          observor.next({
+            success: false,
+            value: null,
+            reasons: [err.message]
+          })
+        }
+      };
+      let deleteTargetUrl = `${this.service_url}/target/delete`;
+      let body = {
+          target_name: name,
+      };
+      this.http.post(deleteTargetUrl, body, {withCredentials: true }).subscribe(httpObserver);
+    });
     return removeReq;
   }
 }

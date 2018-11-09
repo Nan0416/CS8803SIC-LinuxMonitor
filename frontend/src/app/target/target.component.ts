@@ -65,5 +65,12 @@ export class TargetComponent implements OnInit , OnDestroy{
       }
     });
   }
+  deleteTarget(name: string){
+    this.targetOperator.deleteTarget(name).subscribe((data)=>{
+      if(!data.success){
+        this.error_msg = data.reasons[0];
+      }
+    });
+  }
 
 }

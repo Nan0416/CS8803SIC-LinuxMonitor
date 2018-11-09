@@ -16,6 +16,7 @@ const leave = require('./report').leave;
 // query
 const queryCPU = require('./http_routes/query_routes/cpu_route');
 const queryMemory = require('./http_routes/query_routes/memory_route');
+const queryLoad = require('./http_routes/query_routes/system_load_route');
 const querySystemInfo = require('./http_routes/query_routes/systeminfo_route');
 const queryNetworkIO = require('./http_routes/query_routes/network_io_route');
 const queryDiskIO = require('./http_routes/query_routes/disk_io_route');
@@ -37,9 +38,11 @@ app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
 
 app.use(url_prefix + '/query/cpu', queryCPU);
 app.use(url_prefix + '/query/memory', queryMemory);
+app.use(url_prefix + '/query/load', queryLoad);
 app.use(url_prefix + '/query/systeminfo', querySystemInfo);
 app.use(url_prefix + '/query/networkio', queryNetworkIO);
 app.use(url_prefix + '/query/diskio', queryDiskIO);
+app.use(url_prefix + '/query/all', queryAll);
 // test
 app.use(url_prefix + '/test/latency', testLatency);
 

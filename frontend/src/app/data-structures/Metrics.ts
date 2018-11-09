@@ -35,9 +35,12 @@ export class CPU{
     corenum: number;
     time: number;
 }
-export class SessionCPU{
-    sessionid: string;
-    success: boolean;
-    reasons: string[];
-    cpu: CPU;
+export class Memory{
+
 }
+export class Overall{
+    cpu: CPU;
+    memory: Memory;
+    
+}
+

@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable ,of} from 'rxjs';
-import { SessionCPU, CPU } from '../data-structures/CPU';
-import {target_server_addr, restapi_prefix } from './config';
+import { CPU, Memory, Overall } from '../data-structures/Metrics';
+import {target_server_addr, target_restapi_prefix } from './config';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +10,7 @@ import {target_server_addr, restapi_prefix } from './config';
 
 export class QueryService {
   
-  monitor_server_url :string = target_server_addr + restapi_prefix;
+  monitor_server_url :string = target_server_addr + target_restapi_prefix;
   
   constructor(
     private http: HttpClient,
@@ -18,7 +18,7 @@ export class QueryService {
     console.log('[QueryService] New Service Created');
   }
   
-  queryCPU(sessionId: string): Observable<SessionCPU>{
+  /*queryCPU(sessionId: string): Observable<SessionCPU>{
     const cpu: Observable<SessionCPU> = new Observable((observable)=>{
       const httpObserver = {
           next: data=>{
@@ -42,7 +42,7 @@ export class QueryService {
       this.http.post<CPU>(queryUrl, {period: 300}).subscribe(httpObserver);
     });
     return cpu;
-  }
+  }*/
 
   
 }

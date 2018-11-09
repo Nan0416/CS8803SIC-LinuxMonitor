@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { QueryService } from '../services/query.service'; 
 import { QueryWSService } from '../services/query-ws.service';
-import { CPU } from '../data-structures/CPU';
+import { CPU } from '../data-structures/Metrics';
 import { Target } from '../data-structures/Target';
 import { TargetOperationService } from '../services/target-operation.service';
 import { Subscription } from 'rxjs';
