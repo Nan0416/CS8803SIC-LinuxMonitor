@@ -13,7 +13,7 @@ deleteTargetsRouter.route("/")
     res.sendStatus(200);
 })
 .post(cors.cors, (req, res, next)=>{
-    deleteTargets(req.user._id, (result)=>{
+    deleteTargets(req.body.target_name, req.user._id.toString(), (result)=>{
         res.statusCode = result.success?200:403;
         res.json(result);
     });
