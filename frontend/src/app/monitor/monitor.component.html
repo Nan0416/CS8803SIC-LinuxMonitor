@@ -1,3 +1,41 @@
-<svg width="400" height="400">
-  <rect id="rect"></rect>
-</svg>
+<div class="monitor-target-container">
+  <div *ngFor="let target of targets" class="target-panel">
+    <div class="target-overview">
+        <p class="target-name">{{target.name}}</p>
+        <p><span class="dot" [ngStyle]="{'background-color':target.status === 1?'green':'red'}"></span></p>
+    </div>
+    <div class="split-line"></div>
+    <div class="load measure">
+      <div>
+        <p>Load</p>
+      </div>
+      <div class="bar">
+        <div class="occupied" [ngStyle]="{'width': convertToWidth(target, 'load') + 'px'}"></div>
+        <div class="empty" [ngStyle]="{'width': (barWidth - convertToWidth(target, 'load')) + 'px'}"></div>
+      </div>
+    </div>
+    <div class="cpu measure">
+        <div>
+          <p>CPU</p>
+        </div>
+        <div class="bar">
+            <div class="occupied" [ngStyle]="{'width': convertToWidth(target, 'cpu') + 'px'}"></div>
+            <div class="empty" [ngStyle]="{'width': (barWidth - convertToWidth(target, 'cpu')) + 'px'}"></div>
+        </div>
+    </div>
+    <div class="memory measure">
+        <div>
+          <p>Memory</p>
+        </div>
+        <div class="bar">
+            <div class="occupied" [ngStyle]="{'width': convertToWidth(target, 'memory') + 'px'}"></div>
+            <div class="empty" [ngStyle]="{'width': (barWidth - convertToWidth(target, 'memory')) + 'px'}"></div>
+        </div>
+    </div>
+    
+  </div>
+  <div class="empty-panel"></div>
+  <div class="empty-panel"></div>
+  <div class="empty-panel"></div>
+  
+</div>

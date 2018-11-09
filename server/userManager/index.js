@@ -25,6 +25,7 @@ const logoutRoute = require('./routes/user_routes/logout_route');
 const registerTargetRoute = require('./routes/target_routes/register_route');
 const queryTargetsRoute = require('./routes/target_routes/query_route');
 const reportTargetRoute = require('./routes/target_routes/report_route');
+const deleteTargetRoute = require('./routes/target_routes/delete_route');
 // cors
 const cors = require('./routes/cors');
 
@@ -113,6 +114,7 @@ app.use(cors.cors, session_authentication);
 app.use(url_prefix + '/user/logout', logoutRoute);
 app.use(url_prefix + '/target/register', registerTargetRoute);
 app.use(url_prefix + '/target/query', queryTargetsRoute);
+app.use(url_prefix + '/target/delete', deleteTargetRoute);
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////

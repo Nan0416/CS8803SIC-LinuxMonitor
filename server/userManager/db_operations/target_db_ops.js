@@ -94,48 +94,19 @@ function registerTarget(name, protocol, ip, port, userid, callback){
 //////////////////// remove target starts //////////////////////
 ////////////////////////////////////////////////////////////////
 function deleteTarget(name, userid, callback){
-    // 1. find this user
+    // 1. find this target
     // 2. remove the target
-    userDB.findById(userid, (err, user)=>{
-        if(err || !user){
+    targetDB.findOneAndRemove({ownerid: userid, name: name}, (err, result)=>{
+        if(err){
             callback({
                 success: false,
-                reasons:[`Invalid request`],
-                value: null
+                reasons:[err.message],
+                value:null
             });
-        }else{    
-            isFound = false;
-            for(let i = 0; i < user.targets.length; i++){
-                if(user.targets[i].name === name){
-                    isFound = true;
-                    user.targets.splice(i, 1);
-                    break;
-                }
-            }
-            if(isFound){
-                // save
-                user.save((err, result)=>{
-                    if(err){
-                        callback({
-                            success: false,
-                            reasons:[`Cannot make this change`],
-                            value: null
-                        });
-                    }else{
-                        callback({
-                            success: true,
-                            reasons:[],
-                            value: null
-                        });
-                    }
-                });
-            }else{
-                callback({
-                    success: false,
-                    reasons:[`Cannot find ${name} target`],
-                    value: null
-                });
-            }
+        }else if(result){
+            console.log(result);
+        }else{
+            console.log(null);
         }
     });
 }

@@ -20,6 +20,12 @@ export class MonitorComponent implements OnInit, OnDestroy {
     private targetOperator: TargetOperationService
   ) { }
 
+  // UI
+  barWidth: number = 160;
+  convertToWidth(target: Target, metric: string): number{
+    return 100;
+  }
+
   private subscriptor: Subscription;
     
 
