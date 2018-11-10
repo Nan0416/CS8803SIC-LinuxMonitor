@@ -8,7 +8,7 @@ var io = require('socket.io')(server);
 
 const ip = require('./config').ip;
 const port = require('./config').port;
-const url_prefix = "/restapi";
+const url_prefix = require('./config').url_prefix;
 
 const join = require('./report').join;
 const leave = require('./report').leave;
@@ -20,6 +20,7 @@ const queryLoad = require('./http_routes/query_routes/system_load_route');
 const querySystemInfo = require('./http_routes/query_routes/systeminfo_route');
 const queryNetworkIO = require('./http_routes/query_routes/network_io_route');
 const queryDiskIO = require('./http_routes/query_routes/disk_io_route');
+const queryAll = require('./http_routes/query_routes/all_route');
 // test
 const testLatency = require('./http_routes/test_routes/ping_route');
 

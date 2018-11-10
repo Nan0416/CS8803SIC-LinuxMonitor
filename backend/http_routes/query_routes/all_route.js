@@ -2,7 +2,7 @@ const cors = require('../cors');
 const express = require('express');
 const queryRouter = express.Router();
 
-const query_cpu = require('../../monitor_operations/monitor_functions').CPU;
+const overall = require('../../monitor_operations/monitor_functions').overall;
 
 
 ///////////////// route handler /////////////
@@ -16,42 +16,14 @@ queryRouter.route("/")
     res.sendStatus(200);
 })
 .post(cors.cors, (req, res, next)=>{
+    function result_handler(result){
+        res.statusCode = result.success?200:403;
+        res.json(result);
+    }
     if(typeof req.body.period === 'number'){
-        query_cpu(req.body.period, (err, result)=>{
-            if(err){
-                res.statusCode = 500;
-                res.json({
-                    success: false,
-                    reasons: [err.message],
-                    value: null
-                });
-            }else{
-                res.statusCode = 200;
-                res.json({
-                    success: true,
-                    reasons:[],
-                    value: result
-                });
-            }
-        });
+        overall(req.body.period, result_handler);
     }else{
-        query_cpu((err, result)=>{
-            if(err){
-                res.statusCode = 500;
-                res.json({
-                    success: false,
-                    reasons: [err.message],
-                    value: null
-                });
-            }else{
-                res.statusCode = 200;
-                res.json({
-                    success: true,
-                    reasons:[],
-                    value: result
-                });
-            }
-        });
+        overall(result_handler);
     }
 });
 module.exports = queryRouter;
