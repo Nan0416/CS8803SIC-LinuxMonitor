@@ -10,8 +10,8 @@
         <p>Load</p>
       </div>
       <div class="bar">
-        <div class="occupied" [ngStyle]="{'width': convertToWidth(target, 'load') + 'px'}"></div>
-        <div class="empty" [ngStyle]="{'width': (barWidth - convertToWidth(target, 'load')) + 'px'}"></div>
+        <div class="occupied" [ngStyle]="{'width': convertToWidth(target.name, 'load') + 'px'}"></div>
+        <div class="empty" [ngStyle]="{'width': (barWidth - convertToWidth(target.name, 'load')) + 'px'}"></div>
       </div>
     </div>
     <div class="cpu measure">
@@ -19,8 +19,8 @@
           <p>CPU</p>
         </div>
         <div class="bar">
-            <div class="occupied" [ngStyle]="{'width': convertToWidth(target, 'cpu') + 'px'}"></div>
-            <div class="empty" [ngStyle]="{'width': (barWidth - convertToWidth(target, 'cpu')) + 'px'}"></div>
+            <div class="occupied" [ngStyle]="{'width': convertToWidth(target.name, 'CPU') + 'px'}"></div>
+            <div class="empty" [ngStyle]="{'width': (barWidth - convertToWidth(target.name, 'CPU')) + 'px'}"></div>
         </div>
     </div>
     <div class="memory measure">
@@ -28,8 +28,8 @@
           <p>Memory</p>
         </div>
         <div class="bar">
-            <div class="occupied" [ngStyle]="{'width': convertToWidth(target, 'memory') + 'px'}"></div>
-            <div class="empty" [ngStyle]="{'width': (barWidth - convertToWidth(target, 'memory')) + 'px'}"></div>
+            <div class="occupied" [ngStyle]="{'width': convertToWidth(target.name, 'memory') + 'px'}"></div>
+            <div class="empty" [ngStyle]="{'width': (barWidth - convertToWidth(target.name, 'memory')) + 'px'}"></div>
         </div>
     </div>
     

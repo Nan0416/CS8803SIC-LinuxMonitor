@@ -20,6 +20,7 @@ const queryLoad = require('./http_routes/query_routes/system_load_route');
 const querySystemInfo = require('./http_routes/query_routes/systeminfo_route');
 const queryNetworkIO = require('./http_routes/query_routes/network_io_route');
 const queryDiskIO = require('./http_routes/query_routes/disk_io_route');
+const queryAll = require('./http_routes/query_routes/all_route');
 // test
 const testLatency = require('./http_routes/test_routes/ping_route');
 

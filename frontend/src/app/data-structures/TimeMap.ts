@@ -1,11 +1,16 @@
 export class TimeMap<T>{
-    period: number;
-    arr: number[]; // 
+    period: number; //ms
+    arr: number[]; // sorted by time
     data: Map<number, T>;
-    constructor(period: number = 0){
-        this.period = period;
+    constructor(period: number = 0){ // second
+        this.period = period * 1000;
         this.arr = [];
         this.data = new Map();
+    }
+    print(){
+        for(let i = 0; i < this.arr.length; i++){
+            console.log(this.data.get(this.arr[i]));
+        }
     }
     updatePeriod(period: number): void{
         this.period = period;
@@ -14,6 +19,9 @@ export class TimeMap<T>{
                 this.data.delete(this.arr.shift());
             }
         }
+    }
+    getLatest():T{
+        return this.data.get(this.arr[this.arr.length - 1]);
     }
     get(time: number): T{
         return this.data.get(time);
@@ -32,11 +40,7 @@ export class TimeMap<T>{
                 break;
             }
         }
-        // i could be -1 when empty
-        if(i < 0){
-            i = 0;
-        }
-        this.arr.splice(i, 0, time);
+        this.arr.splice(i + 1, 0, time);
         this.data.set(time, element);
         return element;
     }

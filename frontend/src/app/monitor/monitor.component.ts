@@ -1,7 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { QueryService } from '../services/query.service'; 
-import { QueryWSService } from '../services/query-ws.service';
-import { CPU } from '../data-structures/Metrics';
+import { DataContainerService } from '../services/data-container.service'; 
+import { Overall } from '../data-structures/Metrics';
 import { Target } from '../data-structures/Target';
 import { TargetOperationService } from '../services/target-operation.service';
 import { Subscription } from 'rxjs';
@@ -14,61 +13,85 @@ import * as d3 from "d3";
 export class MonitorComponent implements OnInit, OnDestroy {
 
   targets: Target[] = [];
+  dynamic_styles: Map<string, PanelStyle>;
   constructor(
-    private queryService: QueryService,
-    private queryWSService: QueryWSService,
-    private targetOperator: TargetOperationService
-  ) { }
+    private targetOperator: TargetOperationService,
+    private dataContainer: DataContainerService
+  ) { 
+    this.dynamic_styles = new Map();
+  }
 
   // UI
   barWidth: number = 160;
-  convertToWidth(target: Target, metric: string): number{
-    return 100;
+  convertToWidth(target_name: string, metric: string): number{
+    let style: PanelStyle = this.dynamic_styles.get(target_name);
+    if(metric === "load"){
+      let temp = Math.round(style.load * this.barWidth);
+      return temp > this.barWidth?this.barWidth : temp;
+    }else if(metric === "CPU"){
+      let temp =  Math.round(style.CPU * this.barWidth);
+      return temp > this.barWidth?this.barWidth : temp;
+    }else if(metric === "memory"){
+      let temp =  Math.round(style.memory * this.barWidth);
+      return temp > this.barWidth?this.barWidth : temp;
+    } 
+    return 0;
   }
 
-  private subscriptor: Subscription;
-    
+  private subscriptor_target: Subscription;
+  private subscriptor_statistics: Subscription;
 
   ngOnInit() {
-    this.subscriptor = this.targetOperator.targetModification$.subscribe(()=>{
+    this.subscriptor_target = this.targetOperator.targetModification$.subscribe(()=>{
       this.listTargets();
     });
+    
+    this.subscriptor_statistics = this.dataContainer.dataUpdate$.subscribe((target_name:string)=>{
+      this.updateTargetPanel(target_name);
+    });
     this.listTargets();
-    
-    
-    
-    /*setInterval(()=>{
-      this.queryService.queryCPU(Date.now().toString()).subscribe(data=>{
-        console.log(data.sessionid);
-        console.log(data.cpu.overview.sys + data.cpu.overview.user);
-        d3.select('#rect')
-          .attr('fill','red')
-          .attr('width', `${(data.cpu.overview.sys + data.cpu.overview.user) * 1000}`)
-          .attr('height', '200');
-      }) 
-    }, 100);
-    this.queryWSService.initSocket();
-    console.log("WS socket initialized");
-    this.queryWSService.subscribe("CPU", 400);
-    this.queryWSService.onErrReq().subscribe(console.log);
-    this.queryWSService.onCPU().subscribe( (data:CPU) =>{
-      console.log(data);
-      d3.select('#rect')
-        .attr('fill','red')
-        .attr('width', `${(data.overview.sys + data.overview.user) * 1000}`)
-        .attr('height', '200');
-    });*/
+    for(let i = 0; i < this.targets.length; i ++){
+      this.updateTargetPanel(this.targets[i].name);
+    }
   }
   ngOnDestroy(){
-    this.subscriptor.unsubscribe();
+    this.subscriptor_target.unsubscribe();
+    this.subscriptor_statistics.unsubscribe();
   }
 
   listTargets(){
     let tmp_targets: Target[] = [];
     this.targetOperator.targets.forEach((target: Target)=>{
       tmp_targets.push(target);
+      if(!this.dynamic_styles.has(target.name)){
+        let style = new PanelStyle();
+        style.CPU = 0;
+        style.memory = 0;
+        style.load = 0;
+        this.dynamic_styles.set(target.name, style);
+      }
     });
     this.targets = tmp_targets;
   }
+  
+  updateTargetPanel(target_name: string){
+    // get the latest stat from data-container
+    let stat: Overall = this.dataContainer.getLatestStatistics(target_name);
+    if(!stat){
+      return;
+    }
+    if(this.dynamic_styles.has(target_name)){
+      let style: PanelStyle = this.dynamic_styles.get(target_name);
+      style.CPU = stat.CPU.overview.user + stat.CPU.overview.sys;
+      style.memory = 1 - (stat.memory.MemFree / stat.memory.MemTotal);
+      style.load = stat.loadavg.loadavg_per_core[0];
+      console.log(style);
+    }
+  }
 
+}
+class PanelStyle{
+  CPU: number;
+  load: number;
+  memory: number;
 }

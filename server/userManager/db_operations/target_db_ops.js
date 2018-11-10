@@ -76,7 +76,7 @@ function registerTarget(name, protocol, ip, port, userid, callback){
                                 });
                             }else{
                                 if(useWS){
-                                    publishTo(user.username, target.toObject());
+                                    publishTo(user.username, 'add_target', target.toObject());
                                 }
                                 callback({
                                     success: true,
@@ -96,14 +96,14 @@ function registerTarget(name, protocol, ip, port, userid, callback){
 function deleteTarget(name, userid, callback){
     // 1. find this target
     // 2. remove the target
-    targetDB.findOneAndDelete({ownerid: userid, name: name}, (err, result)=>{
+    targetDB.findOneAndDelete({ownerid: userid, name: name}, (err, target)=>{
         if(err){
             callback({
                 success: false,
                 reasons:[err.message],
                 value:null
             });
-        }else if(result){
+        }else if(target){
             userDB.findById(userid, (err, userInfo)=>{
                 if(err){
                     callback({
@@ -112,7 +112,7 @@ function deleteTarget(name, userid, callback){
                         value:null,
                     });
                 }else if(userInfo){
-                    let index = userInfo.targets.indexOf(result._id);
+                    let index = userInfo.targets.indexOf(target._id);
                     userInfo.targets.splice(index, 1);
                     userInfo.save((err, newUser)=>{
                         if(err){
@@ -122,6 +122,7 @@ function deleteTarget(name, userid, callback){
                                 value:null
                             });
                         }else{
+                            publishTo(userInfo.username, 'delete_target', target.toObject());
                             callback({
                                 success: true,
                                 reasons: [],

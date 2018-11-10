@@ -2,6 +2,7 @@ import { Component , OnInit} from '@angular/core';
 import {Router, NavigationEnd} from '@angular/router';
 import { UserOperationService } from './services/user-operation.service';
 import { TargetOperationService } from './services/target-operation.service';
+import { DataContainerService } from './services/data-container.service';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -14,7 +15,8 @@ export class AppComponent implements OnInit {
   constructor(
     private router: Router,
     private userOperator: UserOperationService,
-    private targetOperator: TargetOperationService
+    private targetOperator: TargetOperationService,
+    private dataContainer: DataContainerService
   ){ }
   username: string = null;
   ngOnInit(){
@@ -32,9 +34,12 @@ export class AppComponent implements OnInit {
       this.targetOperator.ws_open();
       this.targetOperator.ws_subscribe();
       this.targetOperator.queryTargets();
+      this.dataContainer.init();
     });
     this.userOperator.userUnMount$.subscribe(data=>{
       this.username = null;
+      this.dataContainer.clear();
+      this.targetOperator.ws_close();
     });
     this.userOperator.queryUserWithSession();
     this.targetOperator.queryTargets();

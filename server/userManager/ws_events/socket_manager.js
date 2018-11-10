@@ -15,10 +15,10 @@ function deleteSocket(username, socket){
     }
 }
 
-function publishTo(username, data){
+function publishTo(username, topic, data){
     if(sockets.has(username)){
         sockets.get(username).forEach(socket => {
-            socket.emit('target', data);
+            socket.emit(topic, data);
         });
     }
 }

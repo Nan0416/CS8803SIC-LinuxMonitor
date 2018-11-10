@@ -2,6 +2,8 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { TargetOperationService } from '../services/target-operation.service';
 import { Target } from '../data-structures/Target';
 import {Subscription} from 'rxjs';
+import { DataContainerService } from '../services/data-container.service';
+import {Overall} from '../data-structures/Metrics';
 @Component({
   selector: 'app-target',
   templateUrl: './target.component.html',
@@ -10,7 +12,7 @@ import {Subscription} from 'rxjs';
 export class TargetComponent implements OnInit , OnDestroy{
 
   constructor(
-    private targetOperator: TargetOperationService
+    private targetOperator: TargetOperationService,
   ) { }
 
   name_input: string = null; 
@@ -21,15 +23,15 @@ export class TargetComponent implements OnInit , OnDestroy{
 
   targets: Target[] = [];
   
-  subscriptor: Subscription;
+  subscriptor_target: Subscription;
   ngOnInit() {
-    this.subscriptor = this.targetOperator.targetModification$.subscribe(()=>{
+    this.subscriptor_target = this.targetOperator.targetModification$.subscribe(()=>{
       this.listTargets();
     });
     this.listTargets();
   }
   ngOnDestroy(){
-    this.subscriptor.unsubscribe();
+    this.subscriptor_target.unsubscribe();
   }
   
 
@@ -72,5 +74,6 @@ export class TargetComponent implements OnInit , OnDestroy{
       }
     });
   }
+  
 
 }

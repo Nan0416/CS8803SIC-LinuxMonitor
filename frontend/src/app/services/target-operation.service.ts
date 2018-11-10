@@ -78,7 +78,7 @@ export class TargetOperationService {
             // nofity
             this.targets.set(target.name, target);
             this.last_modified_target = target;
-            this.__notifyTargetModificationSubscribers();
+            // this.__notifyTargetModificationSubscribers();
 
           }else{
             observor.next({
@@ -122,7 +122,7 @@ export class TargetOperationService {
     if(this.socket === null){
       return;
     }
-    this.socket.on('target', (data)=>{
+    this.socket.on('add_target', (data)=>{
       let target: Target = {
           name: data.name,
           protocol: data.protocol,
@@ -132,6 +132,10 @@ export class TargetOperationService {
       };
       this.last_modified_target = target;
       this.targets.set(target.name, target);
+      this.__notifyTargetModificationSubscribers();
+    });
+    this.socket.on('delete_target', (target_name)=>{
+      this.targets.delete(target_name);
       this.__notifyTargetModificationSubscribers();
     });
     this.socket.emit('subscribe');
