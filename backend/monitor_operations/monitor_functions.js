@@ -1,6 +1,7 @@
 const os = require('os');
 const decimal = require('./helper_functions').decimal;
 const fs = require('fs');
+const async = require('async');
 /**
  * 
  * @param {*} [period] A millisecond time period, default 100
@@ -101,7 +102,7 @@ function networkIO(period, callback){
                 }
                 let result = [];
                 external_interface_set.forEach((name)=>{
-                    console.log(name,t2[name], t1[name]);
+                    //console.log(name,t2[name], t1[name]);
                     result.push({
                         name: name,
                         in: Math.round((t2[name]['received_bytes'] - t1[name]['received_bytes']) / period * 1000),
@@ -306,28 +307,82 @@ function systeminfo(callback){
 /////////////////////////////////////////////////////////////////////////////////////
 
 function loadavg(callback){
-    const filepath = '/proc/loadavg';
-    fs.readFile(filepath, (err, data)=>{
-        if(err){
-            callback(err);
-            return;
-        }
-        try{
-            let items = data.toString('utf8').split(' ');
-            value['loadavg'] = os.loadavg();
-            let number_core = os.cpus().length;
-            value['loadavg_per_core'] = [value['loadavg'][0] / number_core, value['loadavg'][1] / number_core, value['loadavg'][2] / number_core];
-            value['timestamp'] = Date.now();
-            callback(null, value);
-        }catch(err){
-            callback(err);
-        }
-    })
+    const value = {};
+    value['loadavg'] = os.loadavg();
+    let number_core = os.cpus().length;
+    value['loadavg_per_core'] = [value['loadavg'][0] / number_core, value['loadavg'][1] / number_core, value['loadavg'][2] / number_core];
+    value['timestamp'] = Date.now();
+    callback(null, value);
 }
+/////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////// Overall ///////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+function overall(period, callback){
+    if(typeof period === 'function'){
+        callback = period;
+        period = 1000;
+    }
+    let final_result={};
+    
+    async.parallel([
+        (callback_)=>{
+            CPU(period, (err, result)=>{
+                if(result){
+                    final_result["CPU"] = result;
+                }
+               
+                callback_();
+            });
+        },
+        (callback_)=>{
+            memory((err, result)=>{
+                if(result){
+                    final_result["memory"]=result;
+                }
+                
+                callback_();
+            });
+        },
+        (callback_)=>{
+            loadavg((err, result)=>{
+                console.log(err,result);
+                if(result){
+                    final_result["loadavg"]=result;
+                   
+                }
+                callback_();
+            })
+        },
+        (callback_)=>{
+            networkIO(period, (err, result)=>{
+                if(result){
+                    final_result["networkIO"]=result;
+                }
+                callback_();
+            })
+        },
+        (callback_)=>{
+            diskIO(period, (err, result)=>{
+                if(result){
+                    final_result["diskIO"]=result;
+                }
+                callback_();
+            })
+        }
+    ],()=>{
+        final_result['timestamp'] = Date.now();
+        callback({
+            success: true,
+            reasons:[],
+            value: final_result
+        })
+    });
 
+}
 module.exports.memory = memory;
 module.exports.CPU = CPU;
 module.exports.loadavg = loadavg;
 module.exports.systeminfo = systeminfo;
 module.exports.networkIO = networkIO;
 module.exports.diskIO = diskIO;
+module.exports.overall = overall;

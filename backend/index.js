@@ -8,7 +8,7 @@ var io = require('socket.io')(server);
 
 const ip = require('./config').ip;
 const port = require('./config').port;
-const url_prefix = "/restapi";
+const url_prefix = require('./config').url_prefix;
 
 const join = require('./report').join;
 const leave = require('./report').leave;

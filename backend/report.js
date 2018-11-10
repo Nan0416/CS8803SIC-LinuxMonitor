@@ -16,8 +16,10 @@ function join(){
     request(options, (err, res, body)=>{
       if(err){
         console.log(`Fail to notify the server: ${err.message}`);
+      }else if(res.statusCode == 200){
+        console.log("Notified central server");
       }else{
-        console.log(body);
+        console.log("Report error: " + res.statusCode);
       }
     });
 }
@@ -35,8 +37,10 @@ function leave(callack){
   request(options, (err, res, body)=>{
     if(err){
       console.log(`Fail to notify the server: ${err.message}`);
+    }else if(res.statusCode == 200){
+      console.log("Notified central server");
     }else{
-      console.log(body);
+      console.log("Report error: " + res.statusCode);
     }
     callack();
   });
