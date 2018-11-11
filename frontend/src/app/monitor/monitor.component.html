@@ -1,5 +1,5 @@
 <div class="monitor-target-container">
-  <div *ngFor="let target of targets" class="target-panel">
+  <div *ngFor="let target of targets" class="target-panel" (click)="goToTarget(target.name)">
     <div class="target-overview">
         <p class="target-name">{{target.name}}</p>
         <p><span class="dot" [ngStyle]="{'background-color':target.status === 1?'green':'red'}"></span></p>

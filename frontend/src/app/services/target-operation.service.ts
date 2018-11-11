@@ -142,7 +142,6 @@ export class TargetOperationService {
           port: data.port,
           status: data.status
       };
-      console.log("notify from server");
       this.last_modified_target = target;
       this.targets.set(target.name, target);
       this.__notifyTargetModificationSubscribers();

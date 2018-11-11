@@ -13,6 +13,7 @@ import { MonitorComponent } from './monitor/monitor.component';
 import { LoginPageComponent } from './login-page/login-page.component';
 import { UserPageComponent } from './user-page/user-page.component';
 import { TargetComponent } from './target/target.component';
+import { TargetDetailComponent } from './target-detail/target-detail.component';
 
 // router
 
@@ -46,6 +47,7 @@ export function watchLaterMatcher(url: UrlSegment[]){
 }
 const routes: Route[]=[
   { path: "monitor", component: MonitorComponent},
+  { path: "monitor/:name", component: TargetDetailComponent},
   { path: "login", component: LoginPageComponent},
   { path: "targets", component: TargetComponent},
   { path: "user", component: UserPageComponent},
@@ -62,7 +64,8 @@ const routes: Route[]=[
     MonitorComponent,
     LoginPageComponent,
     UserPageComponent,
-    TargetComponent
+    TargetComponent,
+    TargetDetailComponent
   ],
   imports: [
     BrowserModule,

@@ -4,6 +4,7 @@ import { Overall } from '../data-structures/Metrics';
 import { Target } from '../data-structures/Target';
 import { TargetOperationService } from '../services/target-operation.service';
 import { Subscription } from 'rxjs';
+import { Router} from '@angular/router';
 import * as d3 from "d3";
 @Component({
   selector: 'app-monitor',
@@ -16,7 +17,8 @@ export class MonitorComponent implements OnInit, OnDestroy {
   dynamic_styles: Map<string, PanelStyle>;
   constructor(
     private targetOperator: TargetOperationService,
-    private dataContainer: DataContainerService
+    private dataContainer: DataContainerService,
+    private router: Router
   ) { 
     this.dynamic_styles = new Map();
   }
@@ -86,6 +88,10 @@ export class MonitorComponent implements OnInit, OnDestroy {
       style.memory = 1 - (stat.memory.MemFree / stat.memory.MemTotal);
       style.load = stat.loadavg.loadavg_per_core[0];
     }
+  }
+  goToTarget(target_name:string){
+    this.router.navigate([`/monitor/${target_name}`]);
+
   }
 
 }

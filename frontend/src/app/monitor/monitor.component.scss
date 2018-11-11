@@ -7,6 +7,9 @@
     width: 90%;
     max-width: 1200px;
     justify-content: center;
+    .target-panel:hover{
+        cursor: pointer;
+    }
     .target-panel{
         width: 220px;
         height: 110px;
