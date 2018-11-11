@@ -209,19 +209,28 @@ function diskIO(period, callback){
         period = 1000;
     }
     let t1 = disk_io();
+    let result = [];
     setTimeout(()=>{
         let t2 = disk_io();
         for(let disk_name in t1){
             if(t1.hasOwnProperty(disk_name)){
+                
                 t2[disk_name].read -= t1[disk_name].read;
                 t2[disk_name].write -= t1[disk_name].write;
 
                 t2[disk_name].read = t2[disk_name].read / period * 1000;
                 t2[disk_name].write = t2[disk_name].write / period * 1000;
+                result.push({
+                    name: disk_name,
+                    read: t2[disk_name].read,
+                    write: t2[disk_name].write
+                })
             }
         }
-        t2['timestamp'] = Date.now();
-        callback(null, t2);
+        callback(null, {
+            timestamp: Date.now(),
+            disk_io: result
+        });
         
     }, period);
 }
@@ -345,7 +354,6 @@ function overall(period, callback){
         },
         (callback_)=>{
             loadavg((err, result)=>{
-                console.log(err,result);
                 if(result){
                     final_result["loadavg"]=result;
                    

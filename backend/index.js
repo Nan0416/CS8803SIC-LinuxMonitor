@@ -3,8 +3,9 @@
  *  */
 const express = require('express');
 const app = express();
-var server = require('http').createServer(app);
-var io = require('socket.io')(server);
+const server = require('http').createServer(app);
+const io = require('socket.io')(server);
+const process = require('process');
 
 const ip = require('./config').ip;
 const port = require('./config').port;
@@ -73,9 +74,13 @@ io.on('connection', (socket)=>{
     });
 });
 
-app.listen(port, ip);
-console.log(`monitor server is running at http://${ip}:${port}`);
-join();
+app.listen(port);
+console.log(`monitor server is running at http://*:${port}`);
+if(process.argv.length >= 3){
+	join(process.argv[2]);
+}else{
+	join(null);
+}
 
 process.on('SIGINT', () => {
     console.log(`About to exit with code:`);

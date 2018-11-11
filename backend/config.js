@@ -1,5 +1,5 @@
 const username = "qinnan";
-const target_name = "Google";
+const target_name = "Dell";
 const password = "Hello12345";
 const ip = "127.0.0.1";
 const port = 9000;
