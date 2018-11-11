@@ -16,6 +16,7 @@ function deleteSocket(username, socket){
 }
 
 function publishTo(username, topic, data){
+    console.log(username, topic);
     if(sockets.has(username)){
         sockets.get(username).forEach(socket => {
             socket.emit(topic, data);

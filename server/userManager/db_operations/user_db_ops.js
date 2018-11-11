@@ -232,6 +232,8 @@ function modifyTargetStatus(req, res, callback){
                                             value:null
                                         });
                                     }else{
+                                        // publish to client
+                                        publishTo(user.username, "modify_target", target.toObject());
                                         callback({
                                             success: true,
                                             reasons:[],
@@ -277,7 +279,7 @@ function modifyTargetStatus(req, res, callback){
                                 });
                             }else{
                                 // publish to client
-                                publishTo(user.username, target.toObject());
+                                publishTo(user.username, "modify_target", target.toObject());
                                 callback({
                                     success: true,
                                     reasons:[],
