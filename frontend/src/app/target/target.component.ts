@@ -40,7 +40,9 @@ export class TargetComponent implements OnInit , OnDestroy{
     this.targetOperator.targets.forEach((target: Target)=>{
       tmp_targets.push(target);
     });
+    
     this.targets = tmp_targets;
+    console.log(this.targets.length);
   }
   addTarget(){
     let port = 9000;

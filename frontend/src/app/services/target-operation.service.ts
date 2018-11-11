@@ -134,8 +134,8 @@ export class TargetOperationService {
       this.targets.set(target.name, target);
       this.__notifyTargetModificationSubscribers();
     });
-    this.socket.on('delete_target', (target_name)=>{
-      this.targets.delete(target_name);
+    this.socket.on('delete_target', (target)=>{
+      this.targets.delete(target.name);
       this.__notifyTargetModificationSubscribers();
     });
     this.socket.emit('subscribe');
@@ -147,7 +147,7 @@ export class TargetOperationService {
       const httpObserver = {
         next: data=>{
           if(data.success){
-            this.queryTargets();
+            //this.queryTargets();
           }
           observor.next({
             success: data.succes,
