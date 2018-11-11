@@ -85,7 +85,6 @@ export class MonitorComponent implements OnInit, OnDestroy {
       style.CPU = stat.CPU.overview.user + stat.CPU.overview.sys;
       style.memory = 1 - (stat.memory.MemFree / stat.memory.MemTotal);
       style.load = stat.loadavg.loadavg_per_core[0];
-      console.log(style);
     }
   }
 

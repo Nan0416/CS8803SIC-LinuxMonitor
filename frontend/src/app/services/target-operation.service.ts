@@ -134,6 +134,18 @@ export class TargetOperationService {
       this.targets.set(target.name, target);
       this.__notifyTargetModificationSubscribers();
     });
+    this.socket.on('modify_target', (data)=>{
+      let target: Target = {
+          name: data.name,
+          protocol: data.protocol,
+          ip: data.ip,
+          port: data.port,
+          status: data.status
+      };
+      this.last_modified_target = target;
+      this.targets.set(target.name, target);
+      this.__notifyTargetModificationSubscribers();
+    });
     this.socket.on('delete_target', (target)=>{
       this.targets.delete(target.name);
       this.__notifyTargetModificationSubscribers();

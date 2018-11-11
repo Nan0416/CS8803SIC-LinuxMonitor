@@ -64,7 +64,7 @@ export class DataContainerService {
     let id = window.setInterval(()=>{
       this.queryService.queryAll(ip, port, period).subscribe(data=>{
         if(data){
-          console.log(data);
+
           if(this.data.has(name)){
             this.data.get(name).set(data.timestamp, data);
             this.__notifyDataUpdateSubscribers(name);
