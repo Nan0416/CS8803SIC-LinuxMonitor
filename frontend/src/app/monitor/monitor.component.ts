@@ -5,7 +5,6 @@ import { Target } from '../data-structures/Target';
 import { TargetOperationService } from '../services/target-operation.service';
 import { Subscription } from 'rxjs';
 import { Router} from '@angular/router';
-import * as d3 from "d3";
 @Component({
   selector: 'app-monitor',
   templateUrl: './monitor.component.html',

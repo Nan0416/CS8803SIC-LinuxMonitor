@@ -6,6 +6,7 @@ import { TimeMap } from '../data-structures/TimeMap';
 import {TargetOperationService } from '../services/target-operation.service';
 import { Target} from '../data-structures/Target';
 import { Subject } from 'rxjs';
+import {period } from './config';
 @Injectable({
   providedIn: 'root'
 })
@@ -13,7 +14,9 @@ export class DataContainerService {
   
   data: Map<string, TimeMap<Overall>>;
   httpWorker: Map<string, number>;
-  period : number= 15 * 60; // timemap duration (s)
+  wsSocket: Map<string, any>
+  useWS: boolean = true;
+  period : number= period; // timemap duration (s)
 
   // Observable leaving/status update/ 
   private dataUpdateEvt_ = new Subject<string>();
@@ -29,6 +32,7 @@ export class DataContainerService {
   ) { 
     this.data = new Map();
     this.httpWorker = new Map();
+    this.wsSocket = new Map();
   }
   init(){
     this.targetOperator.targetModification$.subscribe(()=>{
@@ -39,7 +43,11 @@ export class DataContainerService {
           if(!this.data.has(k)){
             this.data.set(k, new TimeMap<Overall>(this.period));
             // start ask data
-            this.startHttp(k, t.ip, t.port, 1000); // 3s per request
+            if(!this.useWS){
+              this.startHttp(k, t.ip, t.port, 1000); // 1s per request
+            }else{
+              this.startWS(k, t.ip,  t.port,1000);
+            }
             console.log(k + ' is on');
           }
         }
@@ -64,6 +72,7 @@ export class DataContainerService {
     let id = window.setInterval(()=>{
       this.queryService.queryAll(ip, port, period).subscribe(data=>{
         if(data){
+          console.log(data);
           if(this.data.has(name)){
             this.data.get(name).set(data.timestamp, data);
             this.__notifyDataUpdateSubscribers(name);
@@ -80,8 +89,23 @@ export class DataContainerService {
       //this.httpWorker.delete(name);
     }
   }
-  startWS(){
+  startWS(name: string, ip: string, port: number, period: number){
+    // terminate old socket
+    if(this.wsSocket.has(name)){
+      this.wsSocket.get(name).close();
+    }
 
+    let socket = this.queryWSService.subscribe(ip, port, period);
+    socket.on('all', (data)=>{
+      if(data && data.value){
+        console.log(data.value);
+        if(this.data.has(name)){
+          this.data.get(name).set(data.value.timestamp, data.value);
+          this.__notifyDataUpdateSubscribers(name);
+        }
+      }
+    });
+    this.wsSocket.set(name, socket);
   }
   stopWS(){
 
@@ -98,6 +122,13 @@ export class DataContainerService {
   getStatistics(name:string): TimeMap<Overall> {
     return this.data.get(name);
   }
+  getPeriod(name:string):number{
+    if(this.data.has(name)){
+      return this.data.get(name).getPeriod();
+    }
+    return 0;
+  }
+  
 
 
 }

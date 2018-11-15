@@ -7,6 +7,9 @@ export class TimeMap<T>{
         this.arr = [];
         this.data = new Map();
     }
+    getPeriod():number{
+        return this.period;
+    }
     print(){
         for(let i = 0; i < this.arr.length; i++){
             console.log(this.data.get(this.arr[i]));

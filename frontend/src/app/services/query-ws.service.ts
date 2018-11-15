@@ -9,40 +9,21 @@ import { CPU } from '../data-structures/Metrics';
 })
 export class QueryWSService {
   private socket;
+  // private path: string = target_ws_prefix;
   constructor(
    
   ) { 
    
   }
-
-  public connect(ip:string, port:number){
-    this.socket = socketIo(ip, {path: target_ws_prefix});
+ 
+  public subscribe(ip: string, port: number, period: number) {
+    let socket = socketIo(`http://${ip}:${port}`, {path: target_ws_prefix});
+    socket.emit("subscribe", JSON.stringify({}));
+    /*socket.emit("update", JSON.stringify({
+      period: period
+    }));*/
+    
+    return socket;
   }
-
-  public subscribe(item: String, frequency: Number = 300): void {
-    this.socket.emit('subscribe', JSON.stringify({
-      item: item,
-      frequency: frequency
-    }));
-  }
-  public onErrReq(): Observable<String> {
-    return new Observable<String>(observer => {
-      this.socket.on('errReq', (data: String) => observer.next(data));
-    });
-  }
-  public onCPU(): Observable<CPU> {
-    return new Observable<CPU>(observer => {
-      this.socket.on('CPU', (data) => {
-        if(data.success){
-          observer.next(data.value);
-        }
-      });
-    });
-  }
-
-  /*public onEvent(event: Event): Observable<any> {
-      return new Observable<Event>(observer => {
-          this.socket.on(event, () => observer.next());
-    );
-      }*/
+  
 }
