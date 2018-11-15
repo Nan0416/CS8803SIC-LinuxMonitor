@@ -383,7 +383,7 @@ function overall(period, callback){
             success: true,
             reasons:[],
             value: final_result
-        })
+        });
     });
 
 }

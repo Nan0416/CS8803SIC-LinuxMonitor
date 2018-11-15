@@ -4,7 +4,8 @@
 const express = require('express');
 const app = express();
 const server = require('http').createServer(app);
-const io = require('socket.io')(server);
+const ws_prefix = require('./config').ws_prefix; 
+const io = require('socket.io')(server, { path: ws_prefix});
 const process = require('process');
 
 const ip = require('./config').ip;
@@ -25,6 +26,11 @@ const queryAll = require('./http_routes/query_routes/all_route');
 // test
 const testLatency = require('./http_routes/test_routes/ping_route');
 
+// websocket query listener
+const addAllListener = require('./ws_listeners/query_publishers/all_publisher').addAllListener;
+const deleteAllListener = require('./ws_listeners/query_publishers/all_publisher').deleteAllListener;
+const updateAllSampleRate = require('./ws_listeners/query_publishers/all_publisher').updateAllSampleRate;
+
 ///////// Express configuration //////////
 const logger = require('morgan');
 const bodyParser = require('body-parser');
@@ -36,8 +42,8 @@ app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
     extended: true
 }));
 
-
-
+const cors = require('./http_routes/cors');
+app.use(cors.cors);
 app.use(url_prefix + '/query/cpu', queryCPU);
 app.use(url_prefix + '/query/memory', queryMemory);
 app.use(url_prefix + '/query/load', queryLoad);
@@ -48,33 +54,29 @@ app.use(url_prefix + '/query/all', queryAll);
 // test
 app.use(url_prefix + '/test/latency', testLatency);
 
-// unrecognized path
-app.use(function(req, res, next) {
-    res.statusCode = 400;
-    res.json({
-        success: false,
-        reasons:[`Invalid url path ${req.originalUrl}`],
-        value:null
-    });
-});
+
   
 io.on('connection', (socket)=>{
     if(false){
         // verification goes here
         return;
     }
-    socket.on('disconnect', (msg)=>{
-        //deleteSocket(username, socket);
+    socket.on('disconnect', ()=>{
+        deleteAllListener(socket);
     });
-    socket.on('subscribe', (msg)=>{
-        //addSocket(username, socket);
+    socket.on('subscribe', ()=>{
+        addAllListener(socket);
+    });
+    socket.on('update', (msg)=>{
+        updateAllSampleRate(msg.period);
     });
     socket.on("unsubscribe", (msg)=>{
-
+        socket.disconnect();
+        deleteAllListener(socket);
     });
 });
 
-app.listen(port);
+server.listen(port);
 console.log(`monitor server is running at http://*:${port}`);
 if(process.argv.length >= 3){
 	join(process.argv[2]);
