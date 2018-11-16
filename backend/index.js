@@ -27,9 +27,8 @@ const queryAll = require('./http_routes/query_routes/all_route');
 const testLatency = require('./http_routes/test_routes/ping_route');
 
 // websocket query listener
-const addAllListener = require('./ws_listeners/query_publishers/all_publisher').addAllListener;
-const deleteAllListener = require('./ws_listeners/query_publishers/all_publisher').deleteAllListener;
-const updateAllSampleRate = require('./ws_listeners/query_publishers/all_publisher').updateAllSampleRate;
+const allWorker = require('./ws_listeners/query_publishers/all_publisher')();
+
 
 ///////// Express configuration //////////
 const logger = require('morgan');
@@ -62,17 +61,21 @@ io.on('connection', (socket)=>{
         return;
     }
     socket.on('disconnect', ()=>{
-        deleteAllListener(socket);
+        allWorker.deleteListener(socket);
     });
     socket.on('subscribe', ()=>{
-        addAllListener(socket);
+        allWorker.addListener(socket);
     });
     socket.on('update', (msg)=>{
-        updateAllSampleRate(msg.period);
+        let newPeriod = JSON.parse(msg).period;
+        if(newPeriod && newPeriod > 200){
+            allWorker.updatePeriod(newPeriod);
+        }
+        
     });
     socket.on("unsubscribe", (msg)=>{
         socket.disconnect();
-        deleteAllListener(socket);
+        allWorker.deleteListener(socket);
     });
 });
 
