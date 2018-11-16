@@ -1,23 +1,42 @@
-.detail-container{
+#detail-wrapper{
     display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
+    flex-direction: column;
     margin: 20px auto 20px auto;
     width: 90%;
     max-width: 1200px;
     min-width: 400px;
     justify-content: center;
-    .panel{
-        margin:10px;
-        width: 350px;
-        height: 220px;
-        box-shadow: 1px 1px 1px gray;
+
+    .target-info{
+        width: 100%;
+        background: blue;
+        height: 200px;
         display: flex;
-        justify-content: center;
-        align-items: center;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        justify-content:space-between;
     }
-    .empty{
-        height: 0px;
+    .detail-container{
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        margin: 20px auto 20px auto;
+        width: 100%;
+        max-width: 1200px;
+        min-width: 400px;
+        justify-content: center;
+        .panel{
+            margin:10px;
+            width: 350px;
+            height: 220px;
+            box-shadow: 1px 1px 1px gray;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .empty{
+            height: 0px;
+        }
     }
 }
 .line-plot {

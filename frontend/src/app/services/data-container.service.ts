@@ -15,8 +15,9 @@ export class DataContainerService {
   data: Map<string, TimeMap<Overall>>;
   httpWorker: Map<string, number>;
   wsSocket: Map<string, any>
-  useWS: boolean = true;
+  useWS: boolean = false;
   period : number= period; // timemap duration (s)
+  request_period: number = 1000;
 
   // Observable leaving/status update/ 
   private dataUpdateEvt_ = new Subject<string>();
@@ -44,9 +45,9 @@ export class DataContainerService {
             this.data.set(k, new TimeMap<Overall>(this.period));
             // start ask data
             if(!this.useWS){
-              this.startHttp(k, t.ip, t.port, 1000); // 1s per request
+              this.startHttp(k, t.ip, t.port, this.request_period); // 1s per request
             }else{
-              this.startWS(k, t.ip,  t.port,1000);
+              this.startWS(k, t.ip,  t.port, this.request_period);
             }
             console.log(k + ' is on');
           }
@@ -62,8 +63,51 @@ export class DataContainerService {
       });
     });
   }
+  switchProtocolTo(name: string, protocol: string){
+    let t : Target = this.targetOperator.targets.get(name);
+    if(!t){
+      return;
+    }
+    if(protocol === "ws" && !this.useWS){
+      //stop http
+      this.stopHttp(name);
+      this.startWS(name, t.ip, t.port, this.request_period);
+      this.useWS = true;
+      //start ws
+    }else if(protocol === "http" && this.useWS){
+      //stop ws
+      this.stopWS(name);
+      this.startHttp(name, t.ip, t.port, this.request_period);
+      this.useWS = false;
+    }
+  }
   clear(){
 
+  }
+  /** in real product, the period is fixed. Here, I test the performance of websocket*/
+  updatePeriod(name:string, period: number){
+    this.request_period = period;
+    if(this.useWS){
+      if(this.wsSocket.has(name)){
+        this.wsSocket.get(name).emit("update", JSON.stringify({
+          period: period
+        }));
+      }
+    }else{
+      clearInterval(this.httpWorker.get(name));
+      let t:Target = this.targetOperator.targets.get(name);
+      let id = window.setInterval(()=>{
+        this.queryService.queryAll(t.ip, t.port, period).subscribe(data=>{
+          if(data){
+            if(this.data.has(name)){
+              this.data.get(name).set(data.timestamp, data);
+              this.__notifyDataUpdateSubscribers(name);
+            }
+          }
+        });
+      }, period);
+      this.httpWorker.set(name, id);
+    }
   }
   startHttp(name:string, ip: string, port: number, period:number){
     if(this.httpWorker.has(name)){
@@ -72,7 +116,6 @@ export class DataContainerService {
     let id = window.setInterval(()=>{
       this.queryService.queryAll(ip, port, period).subscribe(data=>{
         if(data){
-          console.log(data);
           if(this.data.has(name)){
             this.data.get(name).set(data.timestamp, data);
             this.__notifyDataUpdateSubscribers(name);
@@ -98,8 +141,8 @@ export class DataContainerService {
     let socket = this.queryWSService.subscribe(ip, port, period);
     socket.on('all', (data)=>{
       if(data && data.value){
-        console.log(data.value);
         if(this.data.has(name)){
+          console.log("Get data");
           this.data.get(name).set(data.value.timestamp, data.value);
           this.__notifyDataUpdateSubscribers(name);
         }
@@ -107,8 +150,11 @@ export class DataContainerService {
     });
     this.wsSocket.set(name, socket);
   }
-  stopWS(){
-
+  
+  stopWS(name: string){
+    if(this.wsSocket.has(name)){
+      this.wsSocket.get(name).close();
+    }
   }
   // get latest static data
   getLatestStatistics(name: string): Overall{
