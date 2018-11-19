@@ -1,12 +1,17 @@
 <div id="detail-wrapper">
   <div class="target-info">
-    <div></div>
-    <div class="control-panel">
+    <div class="target-summary panel" *ngIf="targetInfo">
+        <p>{{targetInfo.name}} {{targetInfo.hostname}}</p>
+        <p>{{targetInfo.model}}</p>
+        <p>{{targetInfo.kernel}} {{targetInfo.arch}}</p>
+    </div>
+    <div class="control-panel panel" *ngIf="targetInfo">
       <input [(ngModel)]="request_period" type="number">
       <button (click)="updatePeriod()">Update</button>
       <button (click)="useWS()">WS</button>
       <button (click)="useHTTP()">HTTP</button>
     </div>
+    <div class="empty"></div>
   </div>
   <div class="detail-container">
     <div class="panel" id="loadavg">

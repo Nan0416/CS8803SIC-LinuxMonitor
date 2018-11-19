@@ -3,10 +3,12 @@ import { Router } from '@angular/router';
 import * as d3 from "d3";
 import { DataContainerService } from '../services/data-container.service';
 import { TimeMap } from '../data-structures/TimeMap';
-import { Overall,NetworkSection } from '../data-structures/Metrics';
+import { Overall,NetworkSection, DiskSection } from '../data-structures/Metrics';
 import { Path, Axis } from '../data-structures/SVG';
 import { Subscription } from 'rxjs';
 import { period} from '../services/config';
+import { TargetInfo} from '../data-structures/Target';
+import { TargetOperationService } from '../services/target-operation.service';
 @Component({
   selector: 'app-target-detail',
   templateUrl: './target-detail.component.html',
@@ -15,11 +17,14 @@ import { period} from '../services/config';
 export class TargetDetailComponent implements OnInit , OnDestroy{
 
   target_name: string;
+
   metrics : string []= ["loadavg", "CPU", "memory", "diskIO", "networkIO"];
+  targetInfo: TargetInfo;
   path: Path[] = [];
   axis: Axis[] = [];
   // pathNames: string [] = ["loadavg_per_core", "cpu_overview", "memory", "network"];
   network_interface: string [] = [];
+  disk_interface: string [] = [];
   pathData: any[] = [];
 
   timeScale;
@@ -52,12 +57,18 @@ export class TargetDetailComponent implements OnInit , OnDestroy{
   subscriptor: Subscription;
   constructor(
     private router:Router,
-    private dataContainer: DataContainerService
+    private dataContainer: DataContainerService,
+    private targetOperator: TargetOperationService
   ) { }
+
+    //header
+  
+
 
   __pushData(metric: Overall){
     let formatted_data = {};
     let network: NetworkSection[] = metric.networkIO.network_io;
+    let disk: DiskSection[] = metric.diskIO.disk_io;
     formatted_data['time'] = metric.timestamp;
     formatted_data['loadavg_per_core'] = metric.loadavg.loadavg_per_core[0];
     formatted_data['loadavg'] = metric.loadavg.loadavg[0];
@@ -67,6 +78,14 @@ export class TargetDetailComponent implements OnInit , OnDestroy{
     }
     formatted_data['cpu_overview'] = metric.CPU.overview.sys + metric.CPU.overview.user;
     formatted_data['cpu_overview_user'] = metric.CPU.overview.user;
+    formatted_data['memory_used'] = metric.memory.MemTotal - metric.memory.MemFree;
+    formatted_data['swap_used'] = metric.memory.SwapTotal - metric.memory.SwapFree;
+    formatted_data['total_memory'] = metric.memory.MemTotal;
+    formatted_data['total_swap'] =  metric.memory.SwapTotal;
+    for(let i = 0; i < disk.length; i++){
+      formatted_data[`${disk[i].name}.read`] = disk[i].read;
+      formatted_data[`${disk[i].name}.write`] = disk[i].write;
+    }
     return formatted_data;
   }
   /**
@@ -132,6 +151,16 @@ export class TargetDetailComponent implements OnInit , OnDestroy{
   // only call once after the first data is load.
   __isInit: boolean = false;
   init(){
+    if(this.targetOperator.targetInfo.get(this.target_name)){
+      this.targetInfo = this.targetOperator.targetInfo.get(this.target_name);
+    }else{
+      this.targetOperator.queryTargetInfo(this.target_name).subscribe(data=>{
+        if(data){
+          this.targetInfo = data;
+          console.log(data);
+        }
+      });
+    }
     let result: TimeMap<Overall> = this.dataContainer.getStatistics(this.target_name);
     if(!result){
       return;
@@ -167,6 +196,14 @@ export class TargetDetailComponent implements OnInit , OnDestroy{
       this.path.push(this.createSVGPath("CPU", "cpu_overview","blue", CPUScale));
       this.path.push(this.createSVGPath("CPU", "cpu_overview_user","green", CPUScale));
 
+      let memoryScale = d3.scaleLinear().range([this.chartHeight,0]);
+      this.axis.push(this.createSVGYAxis("memory", "memory_axis", "right", memoryScale));
+      this.path.push(this.createSVGPath("memory", "memory_used","blue", memoryScale));
+      
+      let swapScale = d3.scaleLinear().range([this.chartHeight,0]);
+      this.axis.push(this.createSVGYAxis("memory", "swap_axis", "left", swapScale))
+      this.path.push(this.createSVGPath("memory", "swap_used","green", swapScale));
+
       // network --- create Y axis and the paths based on it.
       let networkScale = d3.scaleLinear().range([this.chartHeight,0]);
       this.axis.push(this.createSVGYAxis("networkIO", "network_axis", "right", networkScale));
@@ -177,7 +214,14 @@ export class TargetDetailComponent implements OnInit , OnDestroy{
         this.path.push(this.createSVGPath("networkIO", `${network_interface[i].name}.out`, "green", networkScale));
       }      
       
-
+      let diskIOScale = d3.scaleLinear().range([this.chartHeight,0]);
+      this.axis.push(this.createSVGYAxis("diskIO", "disk_axis", "right", diskIOScale));
+      let disk_interface: DiskSection[] = result.getLatest().diskIO.disk_io;
+      for(let i = 0; i < network_interface.length; i++){
+        this.disk_interface.push(disk_interface[i].name);
+        this.path.push(this.createSVGPath("diskIO", `${disk_interface[i].name}.read`, "red", diskIOScale));
+        this.path.push(this.createSVGPath("diskIO", `${disk_interface[i].name}.write`, "green", diskIOScale));
+      } 
     }
   }
 
@@ -246,7 +290,20 @@ export class TargetDetailComponent implements OnInit , OnDestroy{
       }
       return max;
     })]);
-
+    this.updateSVGPathYScaleDomain("memory_axis", [0, d3.max(this.pathData, (d)=>{
+      return d['total_memory'];
+    })]);
+    this.updateSVGPathYScaleDomain("swap_axis", [0, d3.max(this.pathData, (d)=>{
+      return d['total_swap'];
+    })]);
+    this.updateSVGPathYScaleDomain("disk_axis", [0, d3.max(this.pathData, (d)=>{
+      let max = 0;
+      for(let i = 0; i < this.disk_interface.length; i++){
+        max = max < d[`${this.disk_interface[i]}.read`]? d[`${this.disk_interface[i]}.read`]:max;
+        max = max < d[`${this.disk_interface[i]}.write`]? d[`${this.disk_interface[i]}.write`]:max;
+      }
+      return max;
+    })]);
     
 
     // update

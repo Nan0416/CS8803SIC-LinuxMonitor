@@ -2,10 +2,10 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable ,of, Subscriber, Subject} from 'rxjs';
 import { Result } from '../data-structures/GeneralResult';
-import { Target, SessionTarget } from '../data-structures/Target';
+import { Target, TargetInfo,SessionTarget } from '../data-structures/Target';
 import {server_addr, url_prefix} from './config';
 import * as socketIo from 'socket.io-client';
-import {ws_prefix} from './config';
+import {ws_prefix, target_restapi_prefix} from './config';
 @Injectable({
   providedIn: 'root'
 })
@@ -15,6 +15,7 @@ export class TargetOperationService {
 
   service_url:string = server_addr + url_prefix;
   targets: Map<String, Target> = new Map();
+  targetInfo:Map<String, TargetInfo> = new Map();
   last_modified_target: Target = null;
 
   // Observable leaving/status update/ 
@@ -29,7 +30,38 @@ export class TargetOperationService {
   __notifyTargetModificationSubscribers(){
     this.targetModificationEvt_.next();
   }
-
+  queryTargetInfo(target_name: string): Observable<TargetInfo>{
+    let t: Target = this.targets.get(target_name);
+    if(!t){
+      return;
+    }
+    const queryTargetInfo: Observable<TargetInfo> = new Observable((observor)=>{
+      const httpObserver = {
+        next: data=>{
+          if(data.success && data.value){
+            let targetInfo: TargetInfo = {
+              name: target_name,
+              hostname: data.value.hostname,
+              num_core: data.value['#core'],
+              arch: data.value.arch,
+              kernel: data.value.kernel,
+              model: data.value.model,
+            }
+            this.targetInfo.set(target_name, targetInfo);
+            observor.next(targetInfo);
+          }
+          observor.next(null);
+        },
+        error: err=>{
+          observor.next(null);
+        }
+      };
+      let queryTargetInfo = `http://${t.ip}:${t.port}${target_restapi_prefix}/query/systeminfo`;
+      this.http.post(queryTargetInfo, {}, {withCredentials: true }).subscribe(httpObserver);
+    });
+    return queryTargetInfo;
+  }
+  
   queryTargets(){
     const httpObserver = {
       next: data=>{

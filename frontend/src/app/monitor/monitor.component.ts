@@ -89,7 +89,12 @@ export class MonitorComponent implements OnInit, OnDestroy {
     }
   }
   goToTarget(target_name:string){
-    this.router.navigate([`/monitor/${target_name}`]);
+    let t: Target = this.targetOperator.targets.get(target_name);
+    if(t && t.status === 1){
+      this.router.navigate([`/monitor/${target_name}`]);
+    }else{
+      
+    }
 
   }
 

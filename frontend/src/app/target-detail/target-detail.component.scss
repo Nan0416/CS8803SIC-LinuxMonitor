@@ -8,13 +8,27 @@
     justify-content: center;
 
     .target-info{
-        width: 100%;
-        background: blue;
-        height: 200px;
         display: flex;
         flex-direction: row;
-        flex-wrap: nowrap;
-        justify-content:space-between;
+        flex-wrap: wrap;
+        margin: 20px auto 20px auto;
+        width: 100%;
+        max-width: 1200px;
+        min-width: 400px;
+        justify-content: center;
+
+        .panel{
+            margin:10px;
+            width: 350px;
+            height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+        .empty{
+            width: 350px;
+            height: 0px;
+        }
     }
     .detail-container{
         display: flex;
