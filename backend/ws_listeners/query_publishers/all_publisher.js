@@ -1,53 +1,60 @@
 
-const __sockets = [];
-let __period = 1000;
-let worker;
-let isRunning = false;
 let count = 0;
 const overall = require('../../monitor_operations/monitor_functions').overall;
-function addAllListener(socket){
-    if(__sockets.length === 0){
-        // start
-        worker = setInterval(()=>{
-            isRunning = true;
-            overall(__period, (result)=>{
+const EventEmitter = require('events');
+class Worker{
+    constructor(){
+        this.sockets = [];
+        this.running = false;
+        this.period = 1000;
+        this.event_manager = new EventEmitter();
+        // load bullet
+        this.event_manager.on('sample', ()=>{
+            overall(this.period, (result)=>{
                 console.log(count++);
-                for(let i = 0; i < __sockets.length; i++){
-                    __sockets[i].emit('all', result);
+                for(let i = 0; i < this.sockets.length; i++){
+                    this.sockets[i].emit('all', result);
                 }
             });
-        }, __period);
+        });
+        this.event_manager.on("fire", ()=>{
+            if(this.running){
+                this.event_manager.emit("sample");
+                setTimeout(()=>{
+                    this.event_manager.emit("fire");
+                }, this.period);
+            }
+        });
     }
-    __sockets.push(socket);
-}
-function deleteAllListener(socket){
-    let index = __sockets.indexOf(socket);
-    if(index === -1){
-        return;
+    updatePeriod(period){
+        console.log(period);
+        this.period = period;
     }
-    __sockets.splice(index, 1);
-    if(__sockets.length === 0){
-        // stop
-        if(isRunning){
-            isRunning = false;
-            clearInterval(worker);
+    addListener(socket){
+        console.log("add listener, " + this.sockets.length);
+        if(this.sockets.length === 0){
+            // fire
+            this.running = true;
+            
+            this.event_manager.emit("fire");
+            
+        }
+        this.sockets.push(socket);
+    }
+    deleteListener(socket){
+        console.log("delete listener, " + this.sockets.length);
+        let index = this.sockets.indexOf(socket);
+        if(index === -1){
+            return;
+        }
+        this.sockets.splice(index, 1);
+        if(this.sockets.length === 0){
+            this.running = false;
         }
     }
 }
-function updateAllSampleRate(period){
-    __period = period;
-    if(isRunning){
-        clearInterval(worker);
-        worker = setInterval(()=>{
-            isRunning = true;
-            overall(__period, (result)=>{
-                for(let i = 0; i < __sockets.length; i++){
-                    __sockets[i].emit('all', result);
-                }
-            });
-        }, __period);
-    }
+
+function createWorker(){
+    return new Worker();
 }
-module.exports.addAllListener = addAllListener;
-module.exports.deleteAllListener = deleteAllListener;
-module.exports.updateAllSampleRate = updateAllSampleRate;
+module.exports = createWorker;
