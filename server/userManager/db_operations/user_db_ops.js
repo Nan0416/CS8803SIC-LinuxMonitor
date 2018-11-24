@@ -139,7 +139,7 @@ function login(req, res, callback){
                     value:null
                 });
                 return;
-            }else{
+            }else if(user){
                 req.body.username = user.username;
                 passport.authenticate('local')(req, res, function () {
                     // add session
@@ -159,6 +159,12 @@ function login(req, res, callback){
                         }
                     });
                 });
+            }else{
+                callback({
+                    success: false,
+                    reasons:[],
+                    value:null
+                });
             }
         });
     }else{
@@ -171,11 +177,17 @@ function login(req, res, callback){
                         reasons:[],
                         value:null
                     });
-                }else{
+                }else if(userInfo){
                     callback({
                         success: true,
                         reasons:[],
                         value:userInfo
+                    });
+                }else{
+                    callback({
+                        success: false,
+                        reasons:[],
+                        value:null
                     });
                 }
             });
