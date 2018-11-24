@@ -7,6 +7,7 @@ import {TargetOperationService } from '../services/target-operation.service';
 import { Target} from '../data-structures/Target';
 import { Subject } from 'rxjs';
 import {period } from './config';
+import { UserOperationService } from './user-operation.service';
 @Injectable({
   providedIn: 'root'
 })
@@ -29,7 +30,8 @@ export class DataContainerService {
   constructor(
     private queryService: QueryService,
     private queryWSService: QueryWSService,
-    private targetOperator: TargetOperationService
+    private targetOperator: TargetOperationService,
+    private userOperator: UserOperationService
   ) { 
     this.data = new Map();
     this.httpWorker = new Map();
@@ -53,15 +55,18 @@ export class DataContainerService {
           }
         }
       });
+      console.log(liveTargets);
       this.data.forEach((t, k: string)=>{
         if(!liveTargets.has(k)){
           // stop ask data, target is gone.
+          
           this.stopHttp(k);
           this.data.delete(k);
           console.log(k + ' is off');
         }
       });
     });
+   
   }
   switchProtocolTo(name: string, protocol: string){
     let t : Target = this.targetOperator.targets.get(name);

@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import * as d3 from "d3";
 import { DataContainerService } from '../services/data-container.service';
 import { TimeMap } from '../data-structures/TimeMap';
-import { Overall,NetworkSection, DiskSection } from '../data-structures/Metrics';
+import { Overall,NetworkSection, DiskSection, Memory } from '../data-structures/Metrics';
 import { Path, Axis } from '../data-structures/SVG';
 import { Subscription } from 'rxjs';
 import { period} from '../services/config';
@@ -17,8 +17,10 @@ import { TargetOperationService } from '../services/target-operation.service';
 export class TargetDetailComponent implements OnInit , OnDestroy{
 
   target_name: string;
-
+  
   metrics : string []= ["loadavg", "CPU", "memory", "diskIO", "networkIO"];
+  title: Map<string, string> = new Map();
+ 
   targetInfo: TargetInfo;
   path: Path[] = [];
   axis: Axis[] = [];
@@ -35,9 +37,9 @@ export class TargetDetailComponent implements OnInit , OnDestroy{
   
   isInit: boolean = true;
 
-  svgWidth = 340;
-  svgHeight = 200;
-  padding = {t: 15, r: 30, b: 20, l: 30};
+  svgWidth = 400;
+  svgHeight = 230;
+  padding = {t: 40, r: 40, b: 30, l: 40};
   chartWidth = this.svgWidth - this.padding.l - this.padding.r;
   chartHeight = this.svgHeight - this.padding.t - this.padding.b;
   
@@ -59,7 +61,14 @@ export class TargetDetailComponent implements OnInit , OnDestroy{
     private router:Router,
     private dataContainer: DataContainerService,
     private targetOperator: TargetOperationService
-  ) { }
+  ) { 
+    //["loadavg", "CPU", "memory", "diskIO", "networkIO"];
+    this.title.set('loadavg', "Load");
+    this.title.set('CPU', "CPU");
+    this.title.set('memory', 'Memory');
+    this.title.set('diskIO', "Disk");
+    this.title.set('networkIO', 'Network');
+  }
 
     //header
   
@@ -121,18 +130,69 @@ export class TargetDetailComponent implements OnInit , OnDestroy{
     }
     return null;
   }
-  
-  
-  createSVGYAxis(panel_name: string, name: string, side:string, yScale): Axis{
+  memoryFormat(data: number){
+    let count = 0;
+    let arr = ["KB", "MB", "GB", "TB"];
+    while(data >= 1000){
+      data = data / 1000.0;
+      count++;
+    }
+    data = Math.round(data);
+    if(count < arr.length){
+      return data + arr[count];
+    }else{
+      return data;
+    }
+  }
+  storageFormat(data: number){
+    let count = 0;
+    let arr = ["B", "KB", "MB", "GB", "TB"];
+    while(data >= 1000){
+      data = data / 1000.0;
+      count++;
+    }
+    data = Math.round(data);
+    if(count < arr.length){
+      return data + arr[count];
+    }else{
+      return data;
+    }
+  }
+  legend(color, text){
+    return (container)=>{
+      container.append('line')
+        .attr("x1", 0)
+        .attr("y1", -5)
+        .attr('x2', 30)
+        .attr('y2', -5)
+        .attr('stroke', color)
+        .attr('stroke-width', 2);
+      container.append('g')
+        .attr('transform', 'translate(35, 0)')
+        .append('text')
+        .text(text)
+        .attr('font-size', '11')
+        .attr('font-family', 'sans-serif')
+    }
+  }
+  createSVGYAxis(panel_name: string, name: string, side:string, yScale, storageFormat = null): Axis{
     if(this.svgPanel[panel_name]){
       let yAxis;
       let l,t;
       if(side === "left"){
-        yAxis = d3.axisLeft(yScale).ticks(4);
+        if(storageFormat != null){
+          yAxis = d3.axisLeft(yScale).ticks(4).tickFormat(storageFormat);
+        }else{
+          yAxis = d3.axisLeft(yScale).ticks(4);
+        }
         t = this.padding.t;
         l = this.padding.l;
       }else{
-        yAxis = d3.axisRight(yScale).ticks(4);
+        if(storageFormat != null){
+          yAxis = d3.axisRight(yScale).ticks(4).tickFormat(storageFormat);
+        }else{
+          yAxis = d3.axisRight(yScale).ticks(4);
+        }
         t = this.padding.t;
         l = this.padding.l + this.chartWidth;
       }
@@ -180,6 +240,51 @@ export class TargetDetailComponent implements OnInit , OnDestroy{
         this.svgPanel[this.metrics[i]].append("g").attr("class", "x axis")
 				  .attr("transform", `translate(${this.padding.l}, ${this.padding.t + this.chartHeight})`);
       }
+      // create title (label)
+      for(let i = 0; i < this.metrics.length; i++){
+        let title = this.svgPanel[this.metrics[i]].append("g").attr("class", "title")
+          .attr("transform", `translate(${this.padding.l}, ${this.padding.t/2})`);
+        title.append('text')
+          .text(this.title.get(this.metrics[i]))
+          .attr('font-size', '13')
+          .attr('font-family', 'sans-serif');
+      }
+      // create legend
+      {
+        this.svgPanel['loadavg'].append("g")
+          .attr("transform", `translate(${this.padding.l + 60}, ${this.padding.t/2})`)
+          .call(this.legend('red', 'Load'));
+        this.svgPanel['loadavg'].append("g")
+          .attr("transform", `translate(${this.padding.l + 130}, ${this.padding.t/2})`)
+          .call(this.legend('blue', 'Load per core'));
+        this.svgPanel['CPU'].append("g")
+          .attr("transform", `translate(${this.padding.l + 60}, ${this.padding.t/2})`)
+          .call(this.legend('blue', 'User CPU'));
+        this.svgPanel['CPU'].append("g")
+          .attr("transform", `translate(${this.padding.l + 170}, ${this.padding.t/2})`)
+          .call(this.legend('steelblue', 'CPU'));
+        this.svgPanel['memory'].append("g")
+          .attr("transform", `translate(${this.padding.l + 60}, ${this.padding.t/2})`)
+          .call(this.legend('red', 'Used memory'));
+        this.svgPanel['memory'].append("g")
+          .attr("transform", `translate(${this.padding.l + 170}, ${this.padding.t/2})`)
+          .call(this.legend('blue', 'Swap memory'));
+
+        this.svgPanel['networkIO'].append("g")
+          .attr("transform", `translate(${this.padding.l + 60}, ${this.padding.t/2})`)
+          .call(this.legend('red', 'Received'));
+        this.svgPanel['networkIO'].append("g")
+          .attr("transform", `translate(${this.padding.l + 150}, ${this.padding.t/2})`)
+          .call(this.legend('green', 'Sent'));
+        
+        this.svgPanel['diskIO'].append("g")
+          .attr("transform", `translate(${this.padding.l + 60}, ${this.padding.t/2})`)
+          .call(this.legend('red', 'Read'));
+        this.svgPanel['diskIO'].append("g")
+          .attr("transform", `translate(${this.padding.l + 125}, ${this.padding.t/2})`)
+          .call(this.legend('green', 'Write'));
+      }
+
 
       // load --- create Y axis and the paths based on it.
       let loadScale = d3.scaleLinear().domain([0,1]).range([this.chartHeight,0]);
@@ -193,20 +298,20 @@ export class TargetDetailComponent implements OnInit , OnDestroy{
       // CPU --- create Y axis and the path based on it.
       let CPUScale = d3.scaleLinear().domain([0,1]).range([this.chartHeight,0]);
       this.axis.push(this.createSVGYAxis("CPU", "cpu_axis", "right", CPUScale));
-      this.path.push(this.createSVGPath("CPU", "cpu_overview","blue", CPUScale));
-      this.path.push(this.createSVGPath("CPU", "cpu_overview_user","green", CPUScale));
+      this.path.push(this.createSVGPath("CPU", "cpu_overview","steelblue", CPUScale));
+      this.path.push(this.createSVGPath("CPU", "cpu_overview_user","blue", CPUScale));
 
       let memoryScale = d3.scaleLinear().range([this.chartHeight,0]);
-      this.axis.push(this.createSVGYAxis("memory", "memory_axis", "right", memoryScale));
-      this.path.push(this.createSVGPath("memory", "memory_used","blue", memoryScale));
+      this.axis.push(this.createSVGYAxis("memory", "memory_axis", "right", memoryScale, this.memoryFormat));
+      this.path.push(this.createSVGPath("memory", "memory_used","red", memoryScale));
       
       let swapScale = d3.scaleLinear().range([this.chartHeight,0]);
-      this.axis.push(this.createSVGYAxis("memory", "swap_axis", "left", swapScale))
-      this.path.push(this.createSVGPath("memory", "swap_used","green", swapScale));
+      this.axis.push(this.createSVGYAxis("memory", "swap_axis", "left", swapScale, this.memoryFormat))
+      this.path.push(this.createSVGPath("memory", "swap_used","blue", swapScale));
 
       // network --- create Y axis and the paths based on it.
       let networkScale = d3.scaleLinear().range([this.chartHeight,0]);
-      this.axis.push(this.createSVGYAxis("networkIO", "network_axis", "right", networkScale));
+      this.axis.push(this.createSVGYAxis("networkIO", "network_axis", "right", networkScale, this.storageFormat));
       let network_interface: NetworkSection[] = result.getLatest().networkIO.network_io;
       for(let i = 0; i < network_interface.length; i++){
         this.network_interface.push(network_interface[i].name);
@@ -215,7 +320,7 @@ export class TargetDetailComponent implements OnInit , OnDestroy{
       }      
       
       let diskIOScale = d3.scaleLinear().range([this.chartHeight,0]);
-      this.axis.push(this.createSVGYAxis("diskIO", "disk_axis", "right", diskIOScale));
+      this.axis.push(this.createSVGYAxis("diskIO", "disk_axis", "right", diskIOScale, this.storageFormat));
       let disk_interface: DiskSection[] = result.getLatest().diskIO.disk_io;
       for(let i = 0; i < network_interface.length; i++){
         this.disk_interface.push(disk_interface[i].name);

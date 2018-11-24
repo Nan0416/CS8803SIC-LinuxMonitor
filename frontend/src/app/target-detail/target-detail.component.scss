@@ -19,14 +19,36 @@
 
         .panel{
             margin:10px;
-            width: 350px;
+            width: 400px;
             height: 150px;
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
         }
+        .control-panel{
+            
+            button{
+                width: 400px;
+                margin: 5px 0 5px 0;
+                height: 30px;
+                background-color:  #607D8B;
+                border: 0;
+                border-radius: 2px;
+                font-size: 14px;                    
+                font-family: Helvetica,Arial,sans-serif;
+                color:white;
+
+            }
+            button:hover{
+                cursor: pointer;
+            }
+            input{
+                width: 400px;
+                height: 30px;
+            }
+        }
         .empty{
-            width: 350px;
+            width: 400px;
             height: 0px;
         }
     }
@@ -41,14 +63,15 @@
         justify-content: center;
         .panel{
             margin:10px;
-            width: 350px;
-            height: 220px;
             box-shadow: 1px 1px 1px gray;
             display: flex;
             justify-content: center;
             align-items: center;
+            
+            
         }
         .empty{
+            width: 402px;
             height: 0px;
         }
     }
@@ -58,3 +81,4 @@
     stroke-width: 3px;
     stroke: red;
 }
+
