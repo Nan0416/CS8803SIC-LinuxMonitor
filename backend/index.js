@@ -7,13 +7,12 @@ const server = require('http').createServer(app);
 const ws_prefix = require('./config').ws_prefix; 
 const io = require('socket.io')(server, { path: ws_prefix});
 const process = require('process');
-
-const ip = require('./config').ip;
-const port = require('./config').port;
 const url_prefix = require('./config').url_prefix;
 
 const join = require('./report').join;
 const leave = require('./report').leave;
+
+const commandLineArgs = require('command-line-args')
 
 // query
 const queryCPU = require('./http_routes/query_routes/cpu_route');
@@ -79,6 +78,14 @@ io.on('connection', (socket)=>{
     });
 });
 
+
+///////// command line ////////
+const optionDefinitions = [
+    { name: 'name', alias: 'n', type: string },
+    { name: 'port', alias: 'p', type: Number }
+  ]
+const options = commandLineArgs(optionDefinitions);
+console.log(options);
 server.listen(port);
 console.log(`monitor server is running at http://*:${port}`);
 if(process.argv.length >= 3){

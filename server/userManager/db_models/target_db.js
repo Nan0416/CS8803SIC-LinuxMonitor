@@ -10,7 +10,6 @@ const Target = new Schema({
     name: {
         type: String,
         required: true,
-        unique: true,
     },
     protocol:{
         type: String,
