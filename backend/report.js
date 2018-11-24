@@ -1,6 +1,6 @@
 const request = require('request');
-const username = require('./config').username;
-const password = require('./config').password;
+const username = require('./user_secret').username;
+const password = require('./user_secret').password;
 //const target_name = require('./config').target_name;
 let target_name_;
 function join(target_name){
