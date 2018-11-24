@@ -3,7 +3,8 @@ const cors = require('cors');
 const app = express();
 
 const whitelist = [
-    "http://localhost:4200"
+    "http://localhost:4200",
+    "http://monitor.sousys.com"
 ];
 
 var corsOptionsDelegate = (req, callback) => {
