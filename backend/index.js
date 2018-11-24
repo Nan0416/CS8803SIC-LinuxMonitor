@@ -81,19 +81,19 @@ io.on('connection', (socket)=>{
 
 ///////// command line ////////
 const optionDefinitions = [
-    { name: 'name', alias: 'n', type: string },
+    { name: 'name', alias: 'n', type: String },
     { name: 'port', alias: 'p', type: Number }
   ]
 const options = commandLineArgs(optionDefinitions);
-console.log(options);
-server.listen(port);
-console.log(`monitor server is running at http://*:${port}`);
-if(process.argv.length >= 3){
-	join(process.argv[2]);
-}else{
-	join(null);
+if(!(options.name && options.port)){
+    console.log("Invalid arguments. Correct example:")
+    console.log("node index.js --name DellLinux --port 9000")
+    return;
 }
+server.listen(options.port);
+console.log(`monitor server is running at http://*:${options.port}`);
 
+join(options.name);
 process.on('SIGINT', () => {
     console.log(`About to exit with code:`);
     leave(()=>{
