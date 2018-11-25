@@ -6,6 +6,7 @@ import { Target, TargetInfo,SessionTarget } from '../data-structures/Target';
 import {server_addr, url_prefix} from './config';
 import * as socketIo from 'socket.io-client';
 import {ws_prefix, target_restapi_prefix} from './config';
+import { UserOperationService } from './user-operation.service';
 @Injectable({
   providedIn: 'root'
 })
@@ -23,9 +24,17 @@ export class TargetOperationService {
   public targetModification$ = this.targetModificationEvt_.asObservable();
   private socket = null;
   constructor(
-    private http: HttpClient
+    private http: HttpClient,
+    private userOperator: UserOperationService
   ) { 
    this.ws_open();
+   userOperator.userUnMount$.subscribe(()=>{
+     this.targets.clear();
+     this.targetInfo.clear();
+     this.last_modified_target = null;
+     console.log('User logout')
+     this.__notifyTargetModificationSubscribers();
+   })
   }
   __notifyTargetModificationSubscribers(){
     this.targetModificationEvt_.next();
